@@ -9,7 +9,7 @@ if (fs.existsSync(path.join(process.cwd(), `/.env.${Environment}`))) {
 		path: `.env.${Environment}`,
 	});
 } else {
-	// process.exit(1);
+	process.exit(1);
 }
 
 module.exports = (function () {
