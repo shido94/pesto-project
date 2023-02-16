@@ -1,0 +1,49 @@
+{
+  "name": "weather-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "start": "nodemon bin/www.js",
+    "dev": "NODE_ENV=development nodemon bin/www.js",
+    "madge": "madge --circular bin/www.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "app-root-path": "^3.0.0",
+    "axios": "^0.26.1",
+    "bcryptjs": "^2.4.3",
+    "compression": "^1.7.4",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "dayjs": "^1.11.7",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.3",
+    "express-rate-limit": "^6.7.0",
+    "fs": "0.0.1-security",
+    "helmet": "^5.0.2",
+    "http": "0.0.1-security",
+    "http-status": "^1.5.0",
+    "joi": "^17.6.0",
+    "jsonwebtoken": "^9.0.0",
+    "lodash": "^4.17.21",
+    "madge": "^5.0.1",
+    "method-override": "^3.0.0",
+    "mongoose": "^6.9.0",
+    "mongoose-aggregate-paginate-v2": "^1.0.6",
+    "morgan": "^1.10.0",
+    "nodemon": "^2.0.20",
+    "path": "^0.12.7",
+    "request": "^2.88.2",
+    "swagger-jsdoc": "^6.1.0",
+    "swagger-model-validator": "^3.0.21",
+    "swagger-ui-express": "^4.3.0",
+    "uuid": "^8.3.2",
+    "winston": "^3.6.0",
+    "winston-logrotate": "^1.3.0"
+  }
+}
