@@ -9,14 +9,14 @@ if (fs.existsSync(path.join(process.cwd(), `/.env.${Environment}`))) {
 		path: `.env.${Environment}`,
 	});
 } else {
-	process.exit(1);
+	// process.exit(1);
 }
 
 module.exports = (function () {
 	return {
-		PORT: process.env.PORT,
+		PORT: process.env.PORT || 3000,
 		API_URI: process.env.API_URI,
-		DATABASE: process.env.DATABASE,
+		DATABASE: process.env.DATABASE || 'mongodb://127.0.0.1:27017/test',
 		ACCESS_TOKEN_SECRET: process.env.ACCESS_TOKEN_SECRET,
 		REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET,
 		ACCESS_TOKEN_EXPIRATION: process.env.ACCESS_TOKEN_EXPIRATION,
