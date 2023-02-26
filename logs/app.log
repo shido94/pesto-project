@@ -8,3 +8,5 @@
 {"level":"info","message":"Database connection established"}
 {"level":"info","message":"Server started listening on port port 51288"}
 {"level":"info","message":"Database connection established"}
+{"level":"info","message":"Server started listening on port port 3000"}
+{"level":"info","message":"Database connection established"}
