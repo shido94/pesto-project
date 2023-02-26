@@ -18,14 +18,14 @@ require('../../../db/index');
  */
 const app = express();
 app.use(function (req, res, next) {
-	res.header('Access-Control-Allow-Origin', '*');
-	res.header(
-		'Access-Control-Allow-Headers',
-		'Origin, X-Requested-With, Content-Type, Accept'
-	);
-	res.header('Access-Control-Allow-Credentials', true);
-	res.header('Access-Control-Allow-Methods', 'Content-Type');
-	next();
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header(
+    'Access-Control-Allow-Headers',
+    'Origin, X-Requested-With, Content-Type, Accept'
+  );
+  res.header('Access-Control-Allow-Credentials', true);
+  res.header('Access-Control-Allow-Methods', 'Content-Type');
+  next();
 });
 
 /**
@@ -50,26 +50,30 @@ app.use(cors());
 app.use(helmet());
 
 process.on('SIGINT', () => {
-	logger.log('stopping the server', 'info');
-	process.exit();
+  logger.log('stopping the server', 'info');
+  process.exit();
 });
 
 app.use('/api/docs', swagger.router);
 
 app.use((req, res, next) => {
-	req.identifier = uuid();
-	const logString = `A request has been made with the following uuid [${
-		req.identifier
-	}] ${req.url} ${req.headers['user-agent']} ${JSON.stringify(req.body)}`;
-	logger.log(logString, 'info');
-	next();
+  req.identifier = uuid();
+  const logString = `A request has been made with the following uuid [${
+    req.identifier
+  }] ${req.url} ${req.headers['user-agent']} ${JSON.stringify(req.body)}`;
+  logger.log(logString, 'info');
+  next();
+});
+
+app.get('/', (req, res) => {
+  return res.status(200).json({ message: 'Welcome page' });
 });
 
 app.use('/api/v1', require('../routes'));
 
 // send back a 404 error for any unknown api request
 app.use((req, res, next) => {
-	next(new apiError(httpStatus.NOT_FOUND, 'Route Not found'));
+  next(new apiError(httpStatus.NOT_FOUND, 'Route Not found'));
 });
 
 // convert error to apiError, if needed
