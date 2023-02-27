@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const dayjs = require('dayjs');
 const httpStatus = require('http-status');
-const { constant } = require('../utils');
+const { constant, UserRole } = require('../utils');
 const { apiError } = require('../utils');
 
 /**
@@ -13,11 +13,11 @@ const { apiError } = require('../utils');
  * @returns {string}
  */
 const generateToken = ({
-	payload,
-	secret = constant.ACCESS_TOKEN_SECRET,
-	options,
+  payload,
+  secret = constant.ACCESS_TOKEN_SECRET,
+  options,
 }) => {
-	return jwt.sign(payload, secret, options);
+  return jwt.sign(payload, secret, options);
 };
 
 /**
@@ -26,13 +26,13 @@ const generateToken = ({
  * @returns {string}
  */
 const verifyAccessToken = (token, secret = constant.ACCESS_TOKEN_SECRET) => {
-	logger.info('verifyAccessToken');
-	try {
-		return jwt.verify(token, secret);
-	} catch (error) {
-		logger.error('verifyAccessToken error => ', error);
-		throw new apiError(httpStatus.UNAUTHORIZED, 'Session has been expired');
-	}
+  logger.info('verifyAccessToken');
+  try {
+    return jwt.verify(token, secret);
+  } catch (error) {
+    logger.error('verifyAccessToken error => ', error);
+    throw new apiError(httpStatus.UNAUTHORIZED, 'Session has been expired');
+  }
 };
 
 /**
@@ -41,13 +41,13 @@ const verifyAccessToken = (token, secret = constant.ACCESS_TOKEN_SECRET) => {
  * @returns {string}
  */
 const verifyRefreshToken = (token, secret = constant.REFRESH_TOKEN_SECRET) => {
-	logger.info('verifyRefreshToken');
-	try {
-		return jwt.verify(token, secret);
-	} catch (error) {
-		logger.error('verifyRefreshToken error => ', error);
-		throw new apiError(httpStatus.UNAUTHORIZED, 'Session has been expired');
-	}
+  logger.info('verifyRefreshToken');
+  try {
+    return jwt.verify(token, secret);
+  } catch (error) {
+    logger.error('verifyRefreshToken error => ', error);
+    throw new apiError(httpStatus.UNAUTHORIZED, 'Session has been expired');
+  }
 };
 
 /**
@@ -55,27 +55,27 @@ const verifyRefreshToken = (token, secret = constant.REFRESH_TOKEN_SECRET) => {
  * @param {User} user
  * @returns {Promise<Object>}
  */
-const generateAuthTokens = async (userId, role = 1) => {
-	const payload = {
-		sub: userId,
-		role: role,
-	};
+const generateAuthTokens = async (userId, role = UserRole.USER) => {
+  const payload = {
+    sub: userId,
+    role: role,
+  };
 
-	const accessToken = generateToken({
-		payload,
-		options: { expiresIn: constant.ACCESS_TOKEN_EXPIRATION },
-	});
+  const accessToken = generateToken({
+    payload,
+    options: { expiresIn: constant.ACCESS_TOKEN_EXPIRATION },
+  });
 
-	const refreshToken = generateToken({
-		payload,
-		secret: constant.REFRESH_TOKEN_SECRET,
-		options: { expiresIn: constant.REFRESH_TOKEN_EXPIRATION },
-	});
+  const refreshToken = generateToken({
+    payload,
+    secret: constant.REFRESH_TOKEN_SECRET,
+    options: { expiresIn: constant.REFRESH_TOKEN_EXPIRATION },
+  });
 
-	return {
-		accessToken: accessToken,
-		refreshToken: refreshToken,
-	};
+  return {
+    accessToken: accessToken,
+    refreshToken: refreshToken,
+  };
 };
 
 /**
@@ -84,17 +84,15 @@ const generateAuthTokens = async (userId, role = 1) => {
  * @returns
  */
 const generatePayloadToken = async (payload) => {
-	payload.exp = dayjs()
-		.add(constant.TOKEN_EXPIRATION_MINUTES, 'minutes')
-		.unix();
-	const accessToken = generateToken({ payload });
-	return accessToken;
+  payload.exp = dayjs().add(constant.TOKEN_EXPIRATION, 'minutes').unix();
+  const accessToken = generateToken({ payload });
+  return accessToken;
 };
 
 module.exports = {
-	generateToken,
-	verifyAccessToken,
-	verifyRefreshToken,
-	generatePayloadToken,
-	generateAuthTokens,
+  generateToken,
+  verifyAccessToken,
+  verifyRefreshToken,
+  generatePayloadToken,
+  generateAuthTokens,
 };

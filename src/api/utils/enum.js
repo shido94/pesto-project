@@ -5,6 +5,11 @@ const CategoryEnum = {
   CAR: 4,
 };
 
+const UserRole = {
+  ADMIN: 1,
+  USER: 2,
+};
+
 const NotificationTypeEnum = {
   PAYMENT: '1',
 };
@@ -13,6 +18,12 @@ const NotificationRecipientTypeEnum = {
   WEB: 1,
   ANDROID: 2,
   IOS: 3,
+};
+
+const ExpiryUnit = {
+  MINUTE: 'm',
+  HOUR: 'h',
+  DAY: 'd',
 };
 
 const ProductBidStatus = {
@@ -35,4 +46,6 @@ module.exports = {
   NotificationTypeEnum,
   ProductBidStatus,
   OrderStatus,
+  UserRole,
+  ExpiryUnit,
 };

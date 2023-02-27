@@ -6,12 +6,15 @@ const pagination = require('./pagination');
 const pick = require('./pick');
 const responseMessage = require('./response.message');
 const swagger = require('./swagger');
+const { randomNumberGenerator, setTimeFactory } = require('./generator');
 const {
   CategoryEnum,
   NotificationRecipientTypeEnum,
   NotificationTypeEnum,
   ProductBidStatus,
   OrderStatus,
+  UserRole,
+  ExpiryUnit,
 } = require('./enum');
 
 module.exports = {
@@ -28,4 +31,8 @@ module.exports = {
   NotificationTypeEnum,
   ProductBidStatus,
   OrderStatus,
+  UserRole,
+  randomNumberGenerator,
+  setTimeFactory,
+  ExpiryUnit,
 };

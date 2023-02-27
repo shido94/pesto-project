@@ -1,60 +1,121 @@
 const httpStatus = require('http-status');
 const userService = require('./user.service');
 const tokenService = require('./token.service');
-const { responseMessage, constant, apiError } = require('../utils');
+const {
+  responseMessage,
+  constant,
+  apiError,
+  logger,
+  randomNumberGenerator,
+  setTimeFactory,
+  ExpiryUnit,
+} = require('../utils');
 const resourceRepo = require('../dataRepositories/resourceRep');
+
+/**
+ * Register user
+ * @param {Object} body
+ * @returns object
+ */
+const register = async (body) => {
+  logger.debug('Inside register');
+  try {
+    /** Check if user exists */
+    if (await userService.getUserByEmailOrMobile(body.email, body.mobile)) {
+      logger.error('User already exist with email or mobile');
+      throw new apiError(
+        httpStatus.CONFLICT,
+        responseMessage.USER_ALREADY_EXIST
+      );
+    }
+
+    body.otp = randomNumberGenerator(4);
+    body.otpExpiry = setTimeFactory(
+      new Date(),
+      +constant.TOKEN_EXPIRATION,
+      ExpiryUnit
+    );
+
+    /** Create new user */
+    return resourceRepo.create(constant.COLLECTIONS.USER, {
+      data: body,
+    });
+  } catch (error) {
+    throw error;
+  }
+};
 
 /**
  * Register user
  * @param {Object} body
  * @returns true/false
  */
-const register = async (body) => {
-	logger.debug('Inside checkUserWithEmailOrMobile');
+const verifyAuthOtp = async ({ userId, otp }) => {
+  logger.debug('Inside verifyAuthOtp');
+  try {
+    const user = await userService.getUserById(userId);
+    // TODO - remove static otp
+    if (otp != constant.FAKE_OTP) {
+      logger.error('Invalid otp');
+      throw new apiError(httpStatus.BAD_REQUEST, responseMessage.INCORRECT_OTP);
+    }
 
-	/** Check if user exists */
-	if (await userService.getUserByEmailOrMobile(body.email, body.mobile)) {
-		throw new apiError(
-			httpStatus.CONFLICT,
-			responseMessage.USER_ALREADY_EXIST
-		);
-	}
+    /** Check Expiry */
+    if (user.otpExpiry < new Date().toISOString()) {
+      logger.error('otp expired');
+      throw new apiError(httpStatus.BAD_REQUEST, responseMessage.OTP_EXPIRED);
+    }
 
-	try {
-		return resourceRepo.create(constant.COLLECTIONS.USER, {
-			data: body,
-		});
-	} catch (error) {
-		console.log(error);
-	}
+    /** update otp data */
+    await resourceRepo.updateOne(constant.COLLECTIONS.USER, {
+      query: {
+        _id: user._id,
+      },
+      data: {
+        otp: '',
+        otpExpiry: '',
+      },
+    });
+
+    return user;
+  } catch (error) {
+    throw error;
+  }
 };
 
 /**
- * Login with email and password
+ * Login with mobile
  * @param {string} email
  * @param {string} password
  * @returns {Promise<User>}
  */
-const login = async (email, password) => {
-	logger.info('Inside login');
-	const user = await userService.getUserByEmail(email);
+const login = async (mobile) => {
+  logger.info('Inside login');
+  const user = await userService.getUserByMobile(mobile);
 
-	if (!user) {
-		logger.error(responseMessage.INCORRECT_EMAIL);
-		throw new apiError(
-			httpStatus.UNAUTHORIZED,
-			responseMessage.INCORRECT_EMAIL
-		);
-	}
+  if (user.isReported) {
+    throw new apiError(httpStatus.CONFLICT, responseMessage.BLOCKED);
+  }
 
-	if (!(await user.isPasswordMatch(password))) {
-		logger.error(responseMessage.INCORRECT_PASSWORD);
-		throw new apiError(
-			httpStatus.UNAUTHORIZED,
-			responseMessage.INCORRECT_PASSWORD
-		);
-	}
-	return user;
+  const otp = randomNumberGenerator(4);
+  const otpExpiry = setTimeFactory(
+    new Date(),
+    +constant.TOKEN_EXPIRATION,
+    ExpiryUnit
+  );
+
+  /** update otp data */
+  await resourceRepo.updateOne(constant.COLLECTIONS.USER, {
+    query: {
+      _id: user._id,
+    },
+    data: {
+      otp: otp,
+      otpExpiry: otpExpiry,
+    },
+  });
+
+  return user;
 };
 
 /**
@@ -64,23 +125,20 @@ const login = async (email, password) => {
  * @returns true/false
  */
 const checkUserWithEmailOrMobile = async (email, mobile) => {
-	logger.debug(
-		'Inside checkUserWithEmailOrMobile, Email = ' +
-			email +
-			' and Mobile = ' +
-			mobile
-	);
+  logger.debug(
+    'Inside checkUserWithEmailOrMobile, Email = ' +
+      email +
+      ' and Mobile = ' +
+      mobile
+  );
 
-	/** Check if user exists */
-	if (await userService.getUserByEmailOrMobile(email, mobile)) {
-		throw new apiError(
-			httpStatus.CONFLICT,
-			responseMessage.USER_ALREADY_EXIST
-		);
-	}
+  /** Check if user exists */
+  if (await userService.getUserByEmailOrMobile(email, mobile)) {
+    throw new apiError(httpStatus.CONFLICT, responseMessage.USER_ALREADY_EXIST);
+  }
 
-	logger.info('User not found inside checkUserWithEmailOrMobile ');
-	return true;
+  logger.info('User not found inside checkUserWithEmailOrMobile ');
+  return true;
 };
 
 /**
@@ -89,25 +147,24 @@ const checkUserWithEmailOrMobile = async (email, mobile) => {
  * @returns {Promise<Object>}
  */
 const refreshAuth = async (refreshToken) => {
-	try {
-		const refreshTokenDoc = await tokenService.verifyRefreshToken(
-			refreshToken
-		);
+  try {
+    const refreshTokenDoc = await tokenService.verifyRefreshToken(refreshToken);
 
-		logger.info('refreshTokenDoc ' + refreshTokenDoc);
-		const user = await userService.getUserById(refreshTokenDoc.sub);
-		if (!user) {
-			throw new Error();
-		}
-		return tokenService.generateAuthTokens(user._id);
-	} catch (error) {
-		throw new apiError(httpStatus.UNAUTHORIZED, 'Please authenticate');
-	}
+    logger.info('refreshTokenDoc ' + refreshTokenDoc);
+    const user = await userService.getUserById(refreshTokenDoc.sub);
+    if (!user) {
+      throw new Error();
+    }
+    return tokenService.generateAuthTokens(user._id);
+  } catch (error) {
+    throw new apiError(httpStatus.UNAUTHORIZED, 'Please authenticate');
+  }
 };
 
 module.exports = {
-	register,
-	login,
-	checkUserWithEmailOrMobile,
-	refreshAuth,
+  register,
+  verifyAuthOtp,
+  login,
+  checkUserWithEmailOrMobile,
+  refreshAuth,
 };

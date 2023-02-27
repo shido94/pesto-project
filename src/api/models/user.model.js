@@ -13,10 +13,12 @@ const userSchema = Schema(
     email: {
       type: String,
       trim: true,
+      unique: true,
       lowercase: true,
     },
     mobile: {
-      type: Number,
+      type: String,
+      unique: true,
       required: true,
     },
     profileUri: {
@@ -59,10 +61,13 @@ const userSchema = Schema(
       trim: true,
       private: true, // used by the toJSON plugin
     },
-    bankAccount: {
+    bankAccountNumber: {
       type: String,
     },
     ifscCode: {
+      type: String,
+    },
+    accountHolderName: {
       type: String,
     },
     UPI: {
@@ -72,6 +77,12 @@ const userSchema = Schema(
       type: Boolean,
     },
     reasonForReporting: {
+      type: String,
+    },
+    otp: {
+      type: String,
+    },
+    otpExpiry: {
       type: String,
     },
   },

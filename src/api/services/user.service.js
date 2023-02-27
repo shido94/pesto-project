@@ -7,18 +7,18 @@ const resourceRepo = require('../dataRepositories/resourceRep');
  * @returns {Promise<User>}
  */
 const getUserByEmailOrMobile = async (email, mobile) => {
-	const queryData = [];
-	if (mobile) {
-		queryData.push({ mobile });
-	}
-	if (email) {
-		queryData.push({ email });
-	}
-	const query = {
-		$or: queryData,
-	};
+  const queryData = [];
+  if (mobile) {
+    queryData.push({ mobile });
+  }
+  if (email) {
+    queryData.push({ email });
+  }
+  const query = {
+    $or: queryData,
+  };
 
-	return resourceRepo.findOne(constant.COLLECTIONS.USER, { query });
+  return resourceRepo.findOne(constant.COLLECTIONS.USER, { query });
 };
 
 /**
@@ -27,14 +27,42 @@ const getUserByEmailOrMobile = async (email, mobile) => {
  * @returns {Promise<User>}
  */
 const getUserByEmail = async (email) => {
-	const query = {
-		email,
-	};
+  const query = {
+    email,
+  };
 
-	return resourceRepo.findOne(constant.COLLECTIONS.USER, { query });
+  return resourceRepo.findOne(constant.COLLECTIONS.USER, { query });
+};
+
+/**
+ * Get user by mobile
+ * @param {string} email
+ * @returns {Promise<User>}
+ */
+const getUserByMobile = async (mobile) => {
+  const query = {
+    mobile,
+  };
+
+  return resourceRepo.findOne(constant.COLLECTIONS.USER, { query });
+};
+
+/**
+ * Get user by id
+ * @param {string} id
+ * @returns {Promise<User>}
+ */
+const getUserById = async (id) => {
+  const query = {
+    _id: id,
+  };
+
+  return resourceRepo.findOne(constant.COLLECTIONS.USER, { query });
 };
 
 module.exports = {
-	getUserByEmailOrMobile,
-	getUserByEmail,
+  getUserByEmailOrMobile,
+  getUserByEmail,
+  getUserById,
+  getUserByMobile,
 };
