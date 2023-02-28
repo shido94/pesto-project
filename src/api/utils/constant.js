@@ -8,7 +8,7 @@ module.exports = {
   REFRESH_TOKEN_SECRET: config.REFRESH_TOKEN_SECRET,
   ACCESS_TOKEN_EXPIRATION: '7d',
   REFRESH_TOKEN_EXPIRATION: '30d',
-  TOKEN_EXPIRATION: 10 /** In minutes */,
+  TOKEN_EXPIRATION: 1 /** In minutes */,
 
   FAKE_OTP: '1234',
 
@@ -19,5 +19,7 @@ module.exports = {
   },
   COLLECTIONS: {
     USER: 'User',
+    CATEGORY: 'Category',
+    PRODUCT: 'Product',
   },
 };

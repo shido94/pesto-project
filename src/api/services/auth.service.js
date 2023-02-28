@@ -9,6 +9,7 @@ const {
   randomNumberGenerator,
   setTimeFactory,
   ExpiryUnit,
+  UserRole,
 } = require('../utils');
 const resourceRepo = require('../dataRepositories/resourceRep');
 
@@ -29,6 +30,7 @@ const register = async (body) => {
       );
     }
 
+    body.role = UserRole.USER;
     body.otp = randomNumberGenerator(4);
     body.otpExpiry = setTimeFactory(
       new Date(),
@@ -85,8 +87,7 @@ const verifyAuthOtp = async ({ userId, otp }) => {
 
 /**
  * Login with mobile
- * @param {string} email
- * @param {string} password
+ * @param {string} mobile
  * @returns {Promise<User>}
  */
 const login = async (mobile) => {
@@ -161,10 +162,50 @@ const refreshAuth = async (refreshToken) => {
   }
 };
 
+/**
+ * Forgot Password
+ * @param {Object} body
+ * @returns object
+ */
+const forgotPassword = async ({ mobile }) => {
+  logger.debug('Inside register');
+  try {
+    /** Check if user exists */
+    const user = await userService.getUserByMobile(mobile);
+    if (!user) {
+      logger.error('User not found with mobile => ', mobile);
+      throw new apiError(httpStatus.NOT_FOUND, responseMessage.NO_USER_FOUND);
+    }
+
+    const otp = randomNumberGenerator(4);
+    const otpExpiry = setTimeFactory(
+      new Date(),
+      +constant.TOKEN_EXPIRATION,
+      ExpiryUnit
+    );
+
+    /** update otp data */
+    await resourceRepo.updateOne(constant.COLLECTIONS.USER, {
+      query: {
+        _id: user._id,
+      },
+      data: {
+        forgotPasswordOtp: otp,
+        forgotPasswordOtpExpiry: otpExpiry,
+      },
+    });
+
+    return user;
+  } catch (error) {
+    throw error;
+  }
+};
+
 module.exports = {
   register,
   verifyAuthOtp,
   login,
   checkUserWithEmailOrMobile,
   refreshAuth,
+  forgotPassword,
 };

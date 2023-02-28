@@ -1,6 +1,6 @@
 const Joi = require('joi');
 
-const login = {
+const validateMobile = {
   body: Joi.object()
     .keys({
       mobile: Joi.string().trim().required().messages({
@@ -79,6 +79,6 @@ const verifyAuthOtp = {
 
 module.exports = {
   signup,
-  login,
+  validateMobile,
   verifyAuthOtp,
 };

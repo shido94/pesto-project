@@ -16,6 +16,9 @@ const userSchema = Schema(
       unique: true,
       lowercase: true,
     },
+    role: {
+      type: Number,
+    },
     mobile: {
       type: String,
       unique: true,

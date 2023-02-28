@@ -15,10 +15,19 @@ const { userValidation } = require('../validations');
  *     description: Get User Profile
  *     produces:
  *       - application/json
+ *     parameters:
+ *     - name: type
+ *       in: query
+ *     - name: city
+ *       in: query
+ *     - name: days
+ *       in: query
+ *     - name: limit
+ *       in: query
  *     responses:
  *       200:
  *         description: Return Message
  */
-router.get('/', auth([UserRole.USER]), userController.getUserprofile);
+router.get('/', auth(UserRole.USER), userController.getUserprofile);
 
 module.exports = router;

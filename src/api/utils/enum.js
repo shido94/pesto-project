@@ -1,8 +1,7 @@
 const CategoryEnum = {
   FURNITURE: 1,
-  MOBILE: 2,
-  BIKE: 3,
-  CAR: 4,
+  ELECTRONICS: 2,
+  VEHICLES: 3,
 };
 
 const UserRole = {

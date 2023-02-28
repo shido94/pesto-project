@@ -20,7 +20,7 @@ const { authValidation } = require('../validations');
  *     parameters:
  *     - name: body
  *       in: body
- *       description: Login using email/Mobile and Password
+ *       description: Login using Mobile
  *       required: true
  *       schema:
  *         type: object
@@ -33,7 +33,11 @@ const { authValidation } = require('../validations');
  *       200:
  *         description: Return User and Token
  */
-router.post('/login', validate(authValidation.login), authController.login);
+router.post(
+  '/login',
+  validate(authValidation.validateMobile),
+  authController.login
+);
 
 /**
  * @swagger
@@ -104,7 +108,7 @@ router.post(
 
 /**
  * @swagger
- * /auth/verify-signup-otp:
+ * /auth/verify-otp:
  *   post:
  *     tags:
  *       - Auth
