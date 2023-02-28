@@ -21,32 +21,4 @@ const { userValidation } = require('../validations');
  */
 router.get('/', auth([UserRole.USER]), userController.getUserprofile);
 
-// /**
-//  * @swagger
-//  *  /weathers/forecast:
-//  *   get:
-//  *     tags:
-//  *       - Users
-//  *     produces:
-//  *       - application/json
-//  *     parameters:
-//  *     - name: type
-//  *       in: query
-//  *     - name: city
-//  *       in: query
-//  *     - name: days
-//  *       in: query
-//  *     - name: limit
-//  *       in: query
-//  *       description: Get All City Listing
-//  *     responses:
-//  *       200:
-//  *         description: Return Message
-//  */
-// router.get(
-// 	'/forecast',
-// 	validate(userValidation.cityWeatherQuery),
-// 	weatherController.getCitiesForecast
-// );
-
 module.exports = router;

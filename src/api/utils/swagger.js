@@ -36,9 +36,9 @@ getFullPaths(filesName);
 const options = {
   swaggerDefinition: {
     info: {
-      title: 'WeatherApp',
+      title: 'Sell-it',
       version: '1.0.0',
-      description: 'WeatherApp,REST API with swagger doc',
+      description: 'Sell-it,REST API with swagger doc',
       contact: {
         email: 'rupeshyadav94.ryy@gmail.com',
       },
