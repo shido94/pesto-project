@@ -9,6 +9,27 @@ const productSchema = Schema(
       ref: 'User',
       required: true,
     },
+    type: {
+      type: String,
+      required: true,
+    },
+    title: {
+      type: String,
+      required: true,
+    },
+    description: {
+      type: String,
+      required: true,
+    },
+    brand: {
+      type: String,
+    },
+    purchasedYear: {
+      type: String,
+    },
+    distanceDriven: {
+      type: String,
+    },
     offeredAmount: {
       type: String,
     },

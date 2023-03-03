@@ -17,6 +17,18 @@ const getProducts = catchAsync(async (req, res) => {
   );
 });
 
+const addSellProductRequest = catchAsync(async (req, res) => {
+  /** Add user to DB */
+
+  await productService.addSellRequest(req.body, req.user);
+
+  return responseHandler.sendSuccess(
+    res,
+    httpStatus.OK,
+    responseMessage.SUCCESS
+  );
+});
+
 const getCategories = catchAsync(async (req, res) => {
   /** Get Category Listing */
   const categories = await productService.getCategories();
@@ -32,4 +44,5 @@ const getCategories = catchAsync(async (req, res) => {
 module.exports = {
   getProducts,
   getCategories,
+  addSellProductRequest,
 };

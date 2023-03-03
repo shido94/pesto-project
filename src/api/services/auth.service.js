@@ -35,7 +35,7 @@ const register = async (body) => {
     body.otpExpiry = setTimeFactory(
       new Date(),
       +constant.TOKEN_EXPIRATION,
-      ExpiryUnit
+      ExpiryUnit.MINUTE
     );
 
     /** Create new user */
@@ -56,6 +56,15 @@ const verifyAuthOtp = async ({ userId, otp }) => {
   logger.debug('Inside verifyAuthOtp');
   try {
     const user = await userService.getUserById(userId);
+
+    if (!user.otp || !user.otpExpiry) {
+      logger.error('Already verified');
+      throw new apiError(
+        httpStatus.BAD_REQUEST,
+        responseMessage.INVALID_REQUEST
+      );
+    }
+
     // TODO - remove static otp
     if (otp != constant.FAKE_OTP) {
       logger.error('Invalid otp');
@@ -102,7 +111,7 @@ const login = async (mobile) => {
   const otpExpiry = setTimeFactory(
     new Date(),
     +constant.TOKEN_EXPIRATION,
-    ExpiryUnit
+    ExpiryUnit.MINUTE
   );
 
   /** update otp data */
@@ -181,7 +190,7 @@ const forgotPassword = async ({ mobile }) => {
     const otpExpiry = setTimeFactory(
       new Date(),
       +constant.TOKEN_EXPIRATION,
-      ExpiryUnit
+      ExpiryUnit.MINUTE
     );
 
     /** update otp data */

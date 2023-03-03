@@ -29,9 +29,10 @@ const { authValidation } = require('../validations');
  *         properties:
  *           mobile:
  *             type: string
+ *             default: 5555555555
  *     responses:
  *       200:
- *         description: Return User and Token
+ *         description: Return User
  */
 router.post(
   '/login',
@@ -127,8 +128,10 @@ router.post(
  *         properties:
  *           userId:
  *             type: string
+ *             default: 63fcf605a381eaf81ee9cbba
  *           otp:
  *             type: string
+ *             default: 1234
  *     responses:
  *       200:
  *         description: Return User and Token
