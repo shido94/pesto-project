@@ -10,7 +10,6 @@
     "dev": "NODE_ENV=development nodemon bin/www.js",
     "madge": "madge --circular bin/www.js",
     "prepare": "husky install",
-    "test": "mocha",
     "pre-commit": "lint-staged"
   },
   "lint-staged": {
