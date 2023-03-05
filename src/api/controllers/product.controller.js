@@ -1,13 +1,17 @@
-const httpStatus = require('http-status');
-const { pick, catchAsync, responseMessage } = require('../utils');
-const { productService } = require('../services');
-const { responseHandler } = require('../handlers');
+const httpStatus = require("http-status");
+const { pick, catchAsync, responseMessage } = require("../utils");
+const { productService } = require("../services");
+const { responseHandler } = require("../handlers");
 
 const getProducts = catchAsync(async (req, res) => {
-  /** Add user to DB */
-  const products = {
-    name: 'rupesh',
-  };
+  const filter = pick(req.query, ["category", "minPrice", "maxPrice"]);
+  const options = pick(req.query, ["limit", "page", "sortBy"]);
+
+  const products = await productService.getProducts(
+    req.user.sub,
+    filter,
+    options
+  );
 
   return responseHandler.sendSuccess(
     res,

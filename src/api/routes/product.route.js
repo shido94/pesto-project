@@ -1,9 +1,9 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const { productController } = require('../controllers');
-const { validate, auth } = require('../middleware');
-const { UserRole } = require('../utils');
-const { productValidation } = require('../validations');
+const { productController } = require("../controllers");
+const { validate, auth } = require("../middleware");
+const { UserRole } = require("../utils");
+const { productValidation } = require("../validations");
 
 /**
  * @swagger
@@ -24,11 +24,15 @@ const { productValidation } = require('../validations');
  *       in: query
  *     - name: limit
  *       in: query
+ *     - name: sortBy
+ *       in: query
+ *     - name: page
+ *       in: query
  *     responses:
  *       200:
  *         description: Return Message
  */
-router.get('/', auth(UserRole.USER), productController.getProducts);
+router.get("/", auth(UserRole.USER), productController.getProducts);
 
 /**
  * @swagger
@@ -85,7 +89,7 @@ router.get('/', auth(UserRole.USER), productController.getProducts);
  *         description: Return User
  */
 router.post(
-  '/',
+  "/",
   auth(UserRole.USER),
   validate(productValidation.sellProduct),
   productController.addSellProductRequest
@@ -106,7 +110,7 @@ router.post(
  *         description: Return Message
  */
 router.get(
-  '/categories',
+  "/categories",
   auth(UserRole.USER, UserRole.ADMIN),
   productController.getCategories
 );
