@@ -5,7 +5,7 @@ const { responseHandler } = require("../handlers");
 
 const getProducts = catchAsync(async (req, res) => {
   const filter = pick(req.query, ["category", "minPrice", "maxPrice"]);
-  const options = pick(req.query, ["limit", "page", "sortBy"]);
+  const options = pick(req.query, ["limit", "page", "sort"]);
 
   const products = await productService.getProducts(
     req.user.sub,

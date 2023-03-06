@@ -4,6 +4,7 @@ const {
   logger,
   apiError,
   aggregationPaginate,
+  ProductBidStatus,
 } = require("../utils");
 const resourceRepo = require("../dataRepositories/resourceRep");
 const httpStatus = require("http-status");
@@ -19,7 +20,7 @@ const getCategories = async () => {
 };
 
 /**
- * Get user email
+ * Get category by id
  * @returns {Promise<Category>}
  */
 const getCategoryById = async (id) => {
@@ -27,6 +28,28 @@ const getCategoryById = async (id) => {
     _id: ObjectId(id),
   };
   return resourceRepo.findOne(constant.COLLECTIONS.CATEGORY, { query });
+};
+
+/**
+ * Get product by id
+ * @returns {Promise<Product>}
+ */
+const getProductById = async (id) => {
+  const query = {
+    _id: ObjectId(id),
+  };
+  return resourceRepo.findOne(constant.COLLECTIONS.PRODUCT, { query });
+};
+
+/**
+ * Get product by id
+ * @returns {Promise<ProductBidHistory>}
+ */
+const getProductBidHistoryByProductId = async (id) => {
+  const query = {
+    productId: ObjectId(id),
+  };
+  return resourceRepo.findOne(constant.COLLECTIONS.BID_HISTORY, { query });
 };
 
 /**
@@ -106,8 +129,6 @@ const getUserProductsAggregateQuery = (filter) => {
   query.push(categoryLookupQuery());
   query.push({ $unwind: "$category" });
 
-  query.push({ $sort: { createdAt: -1 } });
-
   const aggregate = Product.aggregate(query);
   return aggregate;
 };
@@ -184,8 +205,7 @@ const aggregateUserProducts = async (filter, options) => {
 
 /**
  * Add sell request
- * @param {Object} body
- * @param {Object} user
+ * @param {Array} args
  * @returns {Promise<Category>}
  */
 const getProducts = async (...args) => {
@@ -201,8 +221,41 @@ const getProducts = async (...args) => {
   }
 };
 
+/**
+ * Add sell request
+ * @param {Object} user
+ * @param {Object} body
+ * @returns {Promise<Product>}
+ */
+const createNewBid = async (user, body) => {
+  const productBidHistory = await getProductBidHistoryByProductId(
+    body.productId
+  );
+
+  /** Check if product exists */
+  if (productBidHistory) {
+    logger.info("Invalid product id => ", body.productId);
+    throw new apiError(httpStatus.BAD_REQUEST, responseMessage.INVALID_PRODUCT);
+  }
+
+  const data = [
+    {
+      productId: body.productId,
+      bidCreatedBy: user.sub,
+      newValue: body.offeredAmount,
+      bidStatus: ProductBidStatus.CREATED,
+    },
+  ];
+
+  /** Add new request */
+  return resourceRepo.create(constant.COLLECTIONS.BID_HISTORY, {
+    data,
+  });
+};
+
 module.exports = {
   getCategories,
   addSellRequest,
   getProducts,
+  createNewBid,
 };

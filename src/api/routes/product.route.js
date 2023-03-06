@@ -24,7 +24,7 @@ const { productValidation } = require("../validations");
  *       in: query
  *     - name: limit
  *       in: query
- *     - name: sortBy
+ *     - name: sort
  *       in: query
  *     - name: page
  *       in: query

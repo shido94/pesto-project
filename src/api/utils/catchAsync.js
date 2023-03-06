@@ -1,8 +1,7 @@
-const logger = require('./logger');
+const logger = require("./logger");
 
 const catchAsync = (fn) => (req, res, next) => {
   Promise.resolve(fn(req, res, next)).catch((err) => {
-    logger.error(err);
     next(err);
   });
 };

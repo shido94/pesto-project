@@ -1,29 +1,29 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 const { Schema } = mongoose;
-const { toJSON, paginate } = require('./plugins');
+const { toJSON, paginate } = require("./plugins");
 
-const productChangeHistorySchema = Schema(
+const productBidHistorySchema = Schema(
   {
     productId: {
       type: Schema.Types.ObjectId,
-      ref: 'Product',
+      ref: "Product",
       required: true,
     },
-    bidderId: {
+    bidCreatedBy: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
       required: true,
     },
     respondedBy: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
     },
     newValue: {
       type: Number,
     },
     notes: {
       type: String,
-      default: '',
+      default: "",
     },
     // actionStatus => 1-created, 2-rejected, 3-accepted, 4-counter
     bidStatus: {
@@ -37,15 +37,15 @@ const productChangeHistorySchema = Schema(
 );
 
 // add plugin that converts mongoose to json
-productChangeHistorySchema.plugin(toJSON);
-productChangeHistorySchema.plugin(paginate);
+productBidHistorySchema.plugin(toJSON);
+productBidHistorySchema.plugin(paginate);
 
 /**
- * @typedef ProductChangeHistory
+ * @typedef ProductBidHistory
  */
-const ProductChangeHistory = mongoose.model(
-  'ProductChangeHistory',
-  productChangeHistorySchema
+const ProductBidHistory = mongoose.model(
+  "ProductBidHistory",
+  productBidHistorySchema
 );
 
-module.exports = ProductChangeHistory;
+module.exports = ProductBidHistory;

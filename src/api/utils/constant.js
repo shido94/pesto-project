@@ -1,4 +1,4 @@
-const config = require('../config/environment');
+const config = require("../config/environment");
 
 module.exports = {
   PORT: config.PORT,
@@ -6,20 +6,21 @@ module.exports = {
   DATABASE: config.DATABASE,
   ACCESS_TOKEN_SECRET: config.ACCESS_TOKEN_SECRET,
   REFRESH_TOKEN_SECRET: config.REFRESH_TOKEN_SECRET,
-  ACCESS_TOKEN_EXPIRATION: '7d',
-  REFRESH_TOKEN_EXPIRATION: '30d',
+  ACCESS_TOKEN_EXPIRATION: "7d",
+  REFRESH_TOKEN_EXPIRATION: "30d",
   TOKEN_EXPIRATION: 1 /** In minutes */,
 
-  FAKE_OTP: '1234',
+  FAKE_OTP: "1234",
 
   TWILIO: {
-    ACCOUNT_SID: '',
-    AUTH_TOKEN: '',
-    MOBILE_NUMBER: '',
+    ACCOUNT_SID: "",
+    AUTH_TOKEN: "",
+    MOBILE_NUMBER: "",
   },
   COLLECTIONS: {
-    USER: 'User',
-    CATEGORY: 'Category',
-    PRODUCT: 'Product',
+    USER: "User",
+    CATEGORY: "Category",
+    PRODUCT: "Product",
+    BID_HISTORY: "ProductBidHistory",
   },
 };

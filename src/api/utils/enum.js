@@ -10,7 +10,7 @@ const UserRole = {
 };
 
 const NotificationTypeEnum = {
-  PAYMENT: '1',
+  PAYMENT: "1",
 };
 
 const NotificationRecipientTypeEnum = {
@@ -20,13 +20,13 @@ const NotificationRecipientTypeEnum = {
 };
 
 const ExpiryUnit = {
-  MINUTE: 'm',
-  HOUR: 'h',
-  DAY: 'd',
+  MINUTE: "m",
+  HOUR: "h",
+  DAY: "d",
 };
 
 const ProductBidStatus = {
-  IN_PROGRESS: 1,
+  CREATED: 1,
   ACCEPTED: 2,
   REJECTED: 3,
   MODIFIED: 4,
