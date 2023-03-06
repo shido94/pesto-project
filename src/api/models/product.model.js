@@ -42,10 +42,6 @@ const productSchema = Schema(
       type: Number,
       default: 1,
     },
-    bidStatus: {
-      type: Number,
-      default: 1,
-    },
     pickedUpDate: {
       type: Date,
     },

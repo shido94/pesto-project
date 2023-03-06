@@ -115,4 +115,27 @@ router.get(
   productController.getCategories
 );
 
+/**
+ * @swagger
+ *  /products/{id}:
+ *   get:
+ *     tags: [Product]
+ *     security:
+ *          - Bearer: []
+ *     description: Get Product Details
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *     - name: id
+ *       in: path
+ *     responses:
+ *       200:
+ *         description: Return Message
+ */
+router.get(
+  "/:id",
+  auth(UserRole.ADMIN, UserRole.USER),
+  productController.getProductDetails
+);
+
 module.exports = router;

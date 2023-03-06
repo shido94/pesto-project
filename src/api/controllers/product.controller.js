@@ -21,6 +21,17 @@ const getProducts = catchAsync(async (req, res) => {
   );
 });
 
+const getProductDetails = catchAsync(async (req, res) => {
+  const product = await productService.getProductDetails(req.params.id);
+
+  return responseHandler.sendSuccess(
+    res,
+    httpStatus.OK,
+    responseMessage.SUCCESS,
+    { product }
+  );
+});
+
 const addSellProductRequest = catchAsync(async (req, res) => {
   /** Add user to DB */
 
@@ -49,4 +60,5 @@ module.exports = {
   getProducts,
   getCategories,
   addSellProductRequest,
+  getProductDetails,
 };

@@ -9,6 +9,7 @@ module.exports = {
   USER_ALREADY_EXIST: "User already exist with mobile or email",
   INVALID_CATEGORY: "Please select a valid category",
   INVALID_PRODUCT: "Please select a valid product",
+  PRODUCT_NOT_FOUND: "Product not found",
   SUCCESS: 200,
   SUCCESS_MSG: "Success",
   QUERY_ERROR: 500,

@@ -253,9 +253,145 @@ const createNewBid = async (user, body) => {
   });
 };
 
+/**
+ * Get Product details
+ * @param {String} id
+ * @returns {Promise<Product>}
+ */
+const getProductDetails = async (id) => {
+  const query = [];
+  /**
+   * Query
+   */
+  query.push({
+    $match: {
+      _id: ObjectId(id),
+    },
+  });
+
+  /**
+   * Get Category detail
+   */
+  query.push(categoryLookupQuery());
+  query.push({ $unwind: "$category" });
+
+  query.push(changeHistoryLookupQuery());
+
+  const products = await Product.aggregate(query);
+
+  /** Check if product exists */
+  if (products && products.length) {
+    return products[0];
+  }
+
+  logger.info("Invalid product id => ", id);
+  throw new apiError(httpStatus.NOT_FOUND, responseMessage.PRODUCT_NOT_FOUND);
+};
+
+/**
+ * changeHistoryLookupQuery
+ * @returns {Object}
+ */
+const changeHistoryLookupQuery = () => {
+  const pipelineQuery = [];
+
+  /**
+   * Add filter
+   */
+  pipelineQuery.push({
+    $match: {
+      $expr: { $eq: ["$$model_id", "$productId"] },
+    },
+  });
+
+  /**
+   * Lookup editor
+   */
+  pipelineQuery.push(bidderLookupQuery());
+  pipelineQuery.push({ $unwind: "$bidCreatedBy" });
+
+  /**
+   * Lookup responder
+   */
+  pipelineQuery.push(responderLookupQuery());
+  pipelineQuery.push({
+    $unwind: {
+      path: "$responder",
+      preserveNullAndEmptyArrays: true,
+    },
+  });
+
+  /**
+   * Sort by updated data
+   */
+  pipelineQuery.push({ $sort: { updatedAt: -1 } });
+
+  return {
+    $lookup: {
+      from: "productbidhistories",
+      let: { model_id: "$_id" },
+      pipeline: pipelineQuery,
+      as: "bidHistory",
+    },
+  };
+};
+
+const bidderLookupQuery = () => {
+  return {
+    $lookup: {
+      from: "users",
+      let: { model_id: "$bidCreatedBy" },
+      pipeline: [
+        {
+          $match: {
+            $expr: { $eq: ["$_id", "$$model_id"] },
+          },
+        },
+        {
+          $project: {
+            email: 1,
+            mobile: 1,
+            role: 1,
+            profileUri: 1,
+            name: 1,
+          },
+        },
+      ],
+      as: "bidCreatedBy",
+    },
+  };
+};
+
+const responderLookupQuery = () => {
+  return {
+    $lookup: {
+      from: "users",
+      let: { model_id: "$respondedBy" },
+      pipeline: [
+        {
+          $match: {
+            $expr: { $eq: ["$_id", "$$model_id"] },
+          },
+        },
+        {
+          $project: {
+            email: 1,
+            mobile: 1,
+            role: 1,
+            profileUri: 1,
+            name: 1,
+          },
+        },
+      ],
+      as: "responder",
+    },
+  };
+};
+
 module.exports = {
   getCategories,
   addSellRequest,
   getProducts,
   createNewBid,
+  getProductDetails,
 };
