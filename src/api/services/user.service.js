@@ -1,6 +1,14 @@
-const { constant, UserRole } = require("../utils");
+const {
+  constant,
+  UserRole,
+  aggregationPaginate,
+  logger,
+  responseMessage,
+  apiError,
+} = require("../utils");
 const resourceRepo = require("../dataRepositories/resourceRep");
 const { User } = require("../models");
+const httpStatus = require("http-status");
 
 /**
  * Query for users
@@ -99,17 +107,83 @@ const searchQuery = (filter) => {
   return filter;
 };
 
-const getUsers = async (args) => {
-  try {
-    const query = getAllUserProducts(args);
-    return await aggregateUserProducts(query, args[2]);
-  } catch (error) {
-    logger.error("getProducts error ", error);
-    throw new apiError(
-      httpStatus.INTERNAL_SERVER_ERROR,
-      responseMessage.QUERY_ERROR_MSG
-    );
+/**
+ * Generate Aggregate Query
+ * @param {Object} filter
+ * @returns {Promise<User>}
+ */
+const getUsersAggregateQuery = (filter) => {
+  const query = [];
+
+  /**
+   * Query
+   */
+  query.push({
+    $match: filter,
+  });
+
+  const aggregate = User.aggregate(query);
+  return aggregate;
+};
+
+/**
+ * Execute aggregate query
+ * @param {Object} aggregate - Mongo aggregate data
+ * @param {Object} options - Query options
+ * @returns {Promise<Product>}
+ */
+const usersAggregation = async (aggregate, options) => {
+  return resourceRepo.aggregatePaginate(constant.COLLECTIONS.USER, {
+    aggregate,
+    options,
+  });
+};
+
+/**
+ * Aggregate Users
+ * @param {Object} filter - Mongo filter
+ * @param {Object} options - Query options
+ * @returns {Promise<Product>}
+ */
+const aggregateUsers = async (filter, options) => {
+  const aggregateQuery = getUsersAggregateQuery(filter);
+
+  /**
+   * Manage Pagination on  the aggregation query
+   */
+  const aggregate = await usersAggregation(aggregateQuery, options);
+
+  /**
+   * After getting data from the mongoose pagination, we are modifying some fields
+   */
+  return aggregationPaginate(aggregate);
+};
+
+/**
+ * Aggregate Users listing
+ * @param {Object} filter - Mongo filter
+ * @param {Object} options - Query options
+ * @returns {Promise<Product>}
+ */
+const getUsers = async (filter, options) => {
+  const query = searchQuery(filter);
+  return await aggregateUsers(query, options);
+};
+
+/**
+ * Execute aggregate query
+ * @param {String} id - user id
+ * @returns {Promise<User>}
+ */
+const getUserprofile = async (id) => {
+  const user = await getUserById(id);
+
+  if (!user) {
+    logger.error("User not found with the id ", id);
+    throw new apiError(httpStatus.NOT_FOUND, responseMessage.NO_USER_FOUND);
   }
+
+  return user;
 };
 
 module.exports = {
@@ -119,4 +193,5 @@ module.exports = {
   getUserByMobile,
   getUsers,
   queryUsers,
+  getUserprofile,
 };

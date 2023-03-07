@@ -59,35 +59,31 @@ const getProductBidHistoryByProductId = async (id) => {
  * @returns {Promise<Category>}
  */
 const addSellRequest = async (body, user) => {
-  try {
-    const category = await getCategoryById(body.categoryId);
-    if (!category) {
-      logger.info("Invalid category id => ", body.categoryId);
-      throw new apiError(
-        httpStatus.BAD_REQUEST,
-        responseMessage.INVALID_CATEGORY
-      );
-    }
-
-    const data = {
-      categoryId: body.categoryId,
-      type: body.type,
-      title: body.title,
-      description: body.description,
-      brand: body.brand,
-      purchasedYear: body.purchasedYear,
-      distanceDriven: body.distanceDriven,
-      offeredAmount: body.offeredAmount,
-      createdBy: user.sub,
-      pickupAddress: body.pickupAddress,
-      images: body.images,
-    };
-
-    /** Add new  product request */
-    await resourceRepo.create(constant.COLLECTIONS.PRODUCT, { data });
-  } catch (error) {
-    throw error;
+  const category = await getCategoryById(body.categoryId);
+  if (!category) {
+    logger.info("Invalid category id => ", body.categoryId);
+    throw new apiError(
+      httpStatus.BAD_REQUEST,
+      responseMessage.INVALID_CATEGORY
+    );
   }
+
+  const data = {
+    categoryId: body.categoryId,
+    type: body.type,
+    title: body.title,
+    description: body.description,
+    brand: body.brand,
+    purchasedYear: body.purchasedYear,
+    distanceDriven: body.distanceDriven,
+    offeredAmount: body.offeredAmount,
+    createdBy: user.sub,
+    pickupAddress: body.pickupAddress,
+    images: body.images,
+  };
+
+  /** Add new  product request */
+  await resourceRepo.create(constant.COLLECTIONS.PRODUCT, { data });
 };
 
 function getAllUserProducts(args) {
@@ -161,18 +157,10 @@ const categoryLookupQuery = () => {
  * @returns {Promise<Product>}
  */
 const userProductsAggregation = async (aggregate, options) => {
-  try {
-    return resourceRepo.aggregatePaginate(constant.COLLECTIONS.PRODUCT, {
-      aggregate,
-      options,
-    });
-  } catch (error) {
-    logger.error("userProductsAggregation error ", error);
-    throw new apiError(
-      httpStatus.INTERNAL_SERVER_ERROR,
-      "Something went wrong, Please try again"
-    );
-  }
+  return resourceRepo.aggregatePaginate(constant.COLLECTIONS.PRODUCT, {
+    aggregate,
+    options,
+  });
 };
 
 /**
@@ -182,25 +170,17 @@ const userProductsAggregation = async (aggregate, options) => {
  * @returns {Promise<Product>}
  */
 const aggregateUserProducts = async (filter, options) => {
-  try {
-    const aggregateQuery = getUserProductsAggregateQuery(filter);
+  const aggregateQuery = getUserProductsAggregateQuery(filter);
 
-    /**
-     * Manage Pagination on  the aggregation query
-     */
-    const aggregate = await userProductsAggregation(aggregateQuery, options);
+  /**
+   * Manage Pagination on  the aggregation query
+   */
+  const aggregate = await userProductsAggregation(aggregateQuery, options);
 
-    /**
-     * After getting data from the mongoose pagination, we are modifying some fields
-     */
-    return aggregationPaginate(aggregate);
-  } catch (error) {
-    logger.error("aggregateUserProducts error ", error);
-    throw new apiError(
-      httpStatus.INTERNAL_SERVER_ERROR,
-      "Something went wrong, Please try again"
-    );
-  }
+  /**
+   * After getting data from the mongoose pagination, we are modifying some fields
+   */
+  return aggregationPaginate(aggregate);
 };
 
 /**
@@ -209,16 +189,8 @@ const aggregateUserProducts = async (filter, options) => {
  * @returns {Promise<Category>}
  */
 const getProducts = async (...args) => {
-  try {
-    const query = getAllUserProducts(args);
-    return await aggregateUserProducts(query, args[2]);
-  } catch (error) {
-    logger.error("getProducts error ", error);
-    throw new apiError(
-      httpStatus.INTERNAL_SERVER_ERROR,
-      responseMessage.QUERY_ERROR_MSG
-    );
-  }
+  const query = getAllUserProducts(args);
+  return await aggregateUserProducts(query, args[2]);
 };
 
 /**
