@@ -7,6 +7,35 @@ const { productValidation } = require('../validations');
 
 /**
  * @swagger
+ *  /products:
+ *   get:
+ *     tags: [Products]
+ *     security:
+ *          - Bearer: []
+ *     description: Get Products Listing
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *     - name: category
+ *       in: query
+ *     - name: minPrice
+ *       in: query
+ *     - name: maxPrice
+ *       in: query
+ *     - name: limit
+ *       in: query
+ *     - name: sort
+ *       in: query
+ *     - name: page
+ *       in: query
+ *     responses:
+ *       200:
+ *         description: Return Message
+ */
+router.get('/', auth(UserRole.ADMIN), productController.getAllProducts);
+
+/**
+ * @swagger
  * /products/:
  *   post:
  *     tags: [Products]

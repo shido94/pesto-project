@@ -78,18 +78,16 @@ const addSellRequest = async (body, user) => {
   await resourceRepo.create(constant.COLLECTIONS.PRODUCT, { data });
 };
 
-function getAllUserProducts(args) {
-  const filter = {
-    createdBy: ObjectId(args[0]),
-  };
+function getProductsQuery(args) {
+  const filter = {};
 
-  if (args[1].category) {
-    filter.categoryId = ObjectId(args[1].category);
+  if (args.category) {
+    filter.categoryId = ObjectId(args.category);
   }
-  if (args[1].minPrice > -1 && args[1].maxPrice > args[1].minPrice) {
+  if (args.minPrice > -1 && args.maxPrice > args.minPrice) {
     filter.acceptedAmount = {
-      $lte: args[1].maxPrice,
-      $gte: args[1].minPrice,
+      $lte: args.maxPrice,
+      $gte: args.minPrice,
     };
   }
 
@@ -101,7 +99,7 @@ function getAllUserProducts(args) {
  * @param {Object} filter
  * @returns {Promise<Products>}
  */
-const getUserProductsAggregateQuery = (filter) => {
+const getProductsAggregateQuery = (filter) => {
   const query = [];
 
   /**
@@ -148,7 +146,7 @@ const categoryLookupQuery = () => {
  * @param {Object} options - Query options
  * @returns {Promise<Product>}
  */
-const userProductsAggregation = async (aggregate, options) => {
+const productsAggregation = async (aggregate, options) => {
   return resourceRepo.aggregatePaginate(constant.COLLECTIONS.PRODUCT, {
     aggregate,
     options,
@@ -161,13 +159,13 @@ const userProductsAggregation = async (aggregate, options) => {
  * @param {Object} options - Query options
  * @returns {Promise<Product>}
  */
-const aggregateUserProducts = async (filter, options) => {
-  const aggregateQuery = getUserProductsAggregateQuery(filter);
+const aggregateProducts = async (filter, options) => {
+  const aggregateQuery = getProductsAggregateQuery(filter);
 
   /**
    * Manage Pagination on  the aggregation query
    */
-  const aggregate = await userProductsAggregation(aggregateQuery, options);
+  const aggregate = await productsAggregation(aggregateQuery, options);
 
   /**
    * After getting data from the mongoose pagination, we are modifying some fields
@@ -176,15 +174,31 @@ const aggregateUserProducts = async (filter, options) => {
 };
 
 /**
- * Add sell request
+ * Get all products bu a userid
  * @param {Array} args
  * @returns {Promise<Product>}
  */
-const getUserProducts = async (...args) => {
+const getUserProducts = async (userId, filter, options) => {
   logger.info('Inside getUserProducts');
-  const query = getAllUserProducts(args);
+  const query = getProductsQuery(filter);
+
+  /** Add user in filter */
+  query.createdBy = ObjectId(userId);
+
   logger.info('Query generated');
-  return await aggregateUserProducts(query, args[2]);
+  return await aggregateProducts(query, options);
+};
+
+/**
+ * Get All products
+ * @param {Array} args
+ * @returns {Promise<Product>}
+ */
+const getAllProducts = async (filter, options) => {
+  logger.info('Inside getAllProducts');
+  const query = getProductsQuery(filter);
+  logger.info('Query generated');
+  return await aggregateProducts(query, options);
 };
 
 const addBid = async (body, user, session = null) => {
@@ -469,4 +483,5 @@ module.exports = {
   createNewBid,
   getProductDetails,
   updateBid,
+  getAllProducts,
 };
