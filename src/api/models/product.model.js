@@ -1,13 +1,13 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 const { Schema } = mongoose;
-const { toJSON, paginate } = require("./plugins");
-const aggregatePaginate = require("mongoose-aggregate-paginate-v2");
+const { toJSON, paginate } = require('./plugins');
+const aggregatePaginate = require('mongoose-aggregate-paginate-v2');
 
 const productSchema = Schema(
   {
     categoryId: {
       type: Schema.Types.ObjectId,
-      ref: "User",
+      ref: 'User',
       required: true,
     },
     type: {
@@ -45,9 +45,13 @@ const productSchema = Schema(
     pickedUpDate: {
       type: Date,
     },
+    bidStatus: {
+      type: Number,
+      default: 1,
+    },
     createdBy: {
       type: Schema.Types.ObjectId,
-      ref: "User",
+      ref: 'User',
       required: true,
     },
     pickupAddress: {
@@ -66,7 +70,7 @@ const productSchema = Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 // add plugin that converts mongoose to json
@@ -77,6 +81,6 @@ productSchema.plugin(aggregatePaginate);
 /**
  * @typedef Product
  */
-const Product = mongoose.model("Product", productSchema);
+const Product = mongoose.model('Product', productSchema);
 
 module.exports = Product;

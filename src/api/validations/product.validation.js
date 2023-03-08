@@ -1,24 +1,24 @@
-const Joi = require("joi");
+const Joi = require('joi');
 
 const sellProduct = {
   body: Joi.object().keys({
     categoryId: Joi.string().trim().required().messages({
-      "any.required": `categoryId is required`,
+      'any.required': `categoryId is required`,
     }),
     type: Joi.string().trim().required().messages({
-      "any.required": "Type  is required",
+      'any.required': 'Type  is required',
     }),
     title: Joi.string().trim().required().messages({
-      "any.required": `Title  is required`,
+      'any.required': `Title  is required`,
     }),
     description: Joi.string().required().messages({
-      "any.required": `Description is required`,
+      'any.required': `Description is required`,
     }),
     brand: Joi.string().trim(),
     purchasedYear: Joi.string().trim(),
     distanceDriven: Joi.string().trim(),
     pickupAddress: Joi.string().trim().required().messages({
-      "any.required": `Address is missing`,
+      'any.required': `Address is missing`,
     }),
     images: Joi.array()
       .items({
@@ -27,7 +27,7 @@ const sellProduct = {
       })
       .required()
       .messages({
-        "any.required": `Image data is required`,
+        'any.required': `Image data is required`,
       }),
   }),
 };
@@ -35,10 +35,26 @@ const sellProduct = {
 const createNewBid = {
   body: Joi.object().keys({
     productId: Joi.string().trim().required().messages({
-      "any.required": `productId is required`,
+      'any.required': `productId is required`,
     }),
     offeredAmount: Joi.number().required().messages({
-      "any.required": `Offered amount is required`,
+      'any.required': `Offered amount is required`,
+    }),
+  }),
+};
+
+const updateBid = {
+  body: Joi.object().keys({
+    bidId: Joi.string().trim().required().messages({
+      'any.required': `bidId is required`,
+    }),
+    status: Joi.number().required().messages({
+      'any.required': `Status is required`,
+    }),
+    notes: Joi.string().trim(),
+    offeredAmount: Joi.number().when('status', {
+      is: 4,
+      then: Joi.required(),
     }),
   }),
 };
@@ -46,4 +62,5 @@ const createNewBid = {
 module.exports = {
   sellProduct,
   createNewBid,
+  updateBid,
 };

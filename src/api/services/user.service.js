@@ -1,14 +1,8 @@
-const {
-  constant,
-  UserRole,
-  aggregationPaginate,
-  logger,
-  responseMessage,
-  apiError,
-} = require("../utils");
-const resourceRepo = require("../dataRepositories/resourceRep");
-const { User } = require("../models");
-const httpStatus = require("http-status");
+const { constant, UserRole, aggregationPaginate, logger, responseMessage, apiError } = require('../utils');
+const resourceRepo = require('../dataRepositories/resourceRep');
+const { User } = require('../models');
+const httpStatus = require('http-status');
+const { ObjectId } = require('mongodb');
 
 /**
  * Query for users
@@ -98,9 +92,9 @@ const getUserById = async (id) => {
 
 const searchQuery = (filter) => {
   if (filter.search) {
-    filter["$or"] = [
-      { name: { $regex: new RegExp(filter.search, "i") } },
-      { email: { $regex: new RegExp(filter.search, "i") } },
+    filter['$or'] = [
+      { name: { $regex: new RegExp(filter.search, 'i') } },
+      { email: { $regex: new RegExp(filter.search, 'i') } },
     ];
   }
   delete filter.search;
@@ -179,11 +173,28 @@ const getUserprofile = async (id) => {
   const user = await getUserById(id);
 
   if (!user) {
-    logger.error("User not found with the id ", id);
+    logger.error('User not found with the id ', id);
     throw new apiError(httpStatus.NOT_FOUND, responseMessage.NO_USER_FOUND);
   }
 
   return user;
+};
+
+/**
+ * Report user account
+ * @param {Object} body
+ * @returns null
+ */
+const blockUserAccount = async (body) => {
+  const query = {
+    _id: ObjectId(body.id),
+  };
+
+  const data = {
+    isReported: body.isReported,
+    reasonForReporting: body.reason,
+  };
+  await resourceRepo.updateOne(constant.COLLECTIONS.USER, { query, data });
 };
 
 module.exports = {
@@ -194,4 +205,5 @@ module.exports = {
   getUsers,
   queryUsers,
   getUserprofile,
+  blockUserAccount,
 };

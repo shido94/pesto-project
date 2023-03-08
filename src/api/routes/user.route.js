@@ -1,8 +1,8 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const { userController } = require("../controllers");
-const { validate, auth } = require("../middleware");
-const { UserRole } = require("../utils");
+const { userController } = require('../controllers');
+const { validate, auth } = require('../middleware');
+const { UserRole } = require('../utils');
 
 /**
  * @swagger
@@ -27,7 +27,7 @@ const { UserRole } = require("../utils");
  *       200:
  *         description: Return Message
  */
-router.get("/", auth(UserRole.ADMIN), userController.getUsers);
+router.get('/', auth(UserRole.ADMIN), userController.getUsers);
 
 /**
  * @swagger
@@ -43,11 +43,36 @@ router.get("/", auth(UserRole.ADMIN), userController.getUsers);
  *       200:
  *         description: Return Message
  */
-router.get(
-  "/:id",
-  auth(UserRole.USER, UserRole.ADMIN),
-  userController.getUserProfile
-);
+router.get('/profile', auth(UserRole.USER, UserRole.ADMIN), userController.getUserProfile);
+
+/**
+ * @swagger
+ *  /users/products:
+ *   get:
+ *     tags: [Users]
+ *     security:
+ *          - Bearer: []
+ *     description: Get Users Products Listing
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *     - name: category
+ *       in: query
+ *     - name: minPrice
+ *       in: query
+ *     - name: maxPrice
+ *       in: query
+ *     - name: limit
+ *       in: query
+ *     - name: sort
+ *       in: query
+ *     - name: page
+ *       in: query
+ *     responses:
+ *       200:
+ *         description: Return Message
+ */
+router.get('/products', auth(UserRole.USER), userController.getUserProducts);
 
 /**
  * @swagger
@@ -66,10 +91,6 @@ router.get(
  *       200:
  *         description: Return Message
  */
-router.get(
-  "/:id",
-  auth(UserRole.USER, UserRole.ADMIN),
-  userController.getUserByUserId
-);
+router.get('/:id', auth(UserRole.USER, UserRole.ADMIN), userController.getUserByUserId);
 
 module.exports = router;

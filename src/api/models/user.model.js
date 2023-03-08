@@ -1,8 +1,8 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 const { Schema } = mongoose;
-const bcrypt = require("bcryptjs");
-const { toJSON, paginate } = require("./plugins");
-const aggregatePaginate = require("mongoose-aggregate-paginate-v2");
+const bcrypt = require('bcryptjs');
+const { toJSON, paginate } = require('./plugins');
+const aggregatePaginate = require('mongoose-aggregate-paginate-v2');
 
 const userSchema = Schema(
   {
@@ -78,6 +78,7 @@ const userSchema = Schema(
     },
     isReported: {
       type: Boolean,
+      default: false,
     },
     reasonForReporting: {
       type: String,
@@ -91,7 +92,7 @@ const userSchema = Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 // add plugin that converts mongoose to json
@@ -109,14 +110,14 @@ userSchema.methods.isPasswordMatch = async function (password) {
   return bcrypt.compare(password, user.password);
 };
 
-userSchema.pre("save", async function () {
+userSchema.pre('save', async function () {
   const user = this;
-  if (user.isModified("password")) {
+  if (user.isModified('password')) {
     user.password = await bcrypt.hash(user.password, 8);
   }
 });
 
-userSchema.virtual("fullAddress").get(function () {
+userSchema.virtual('fullAddress').get(function () {
   if (this.landmark) {
     return `${this.addressLine1} ${this.landmark} ${this.city} ${this.state} ${this.country} ${this.zipCode}`;
   } else {
@@ -127,6 +128,6 @@ userSchema.virtual("fullAddress").get(function () {
 /**
  * @typedef User
  */
-const User = mongoose.model("User", userSchema);
+const User = mongoose.model('User', userSchema);
 
 module.exports = User;

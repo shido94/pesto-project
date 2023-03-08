@@ -1,9 +1,9 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const { adminController } = require("../controllers");
-const { validate, auth } = require("../middleware");
-const { UserRole } = require("../utils");
-const { userValidation, productValidation } = require("../validations");
+const { adminController } = require('../controllers');
+const { validate, auth } = require('../middleware');
+const { UserRole } = require('../utils');
+const { userValidation, productValidation } = require('../validations');
 
 /**
  * @swagger
@@ -32,7 +32,7 @@ const { userValidation, productValidation } = require("../validations");
  *       200:
  *         description: Return User and Token
  */
-router.post("/login", adminController.login);
+router.post('/login', adminController.login);
 
 /**
  * @swagger
@@ -57,7 +57,7 @@ router.post("/login", adminController.login);
  *       200:
  *         description: Return Message
  */
-router.get("/users", auth(UserRole.ADMIN), adminController.getUsers);
+router.get('/users', auth(UserRole.ADMIN), adminController.getUsers);
 
 /**
  * @swagger
@@ -91,10 +91,44 @@ router.get("/users", auth(UserRole.ADMIN), adminController.getUsers);
  *         description: Return Message
  */
 router.post(
-  "/products/bid",
+  '/products/bid',
   auth(UserRole.ADMIN),
   validate(productValidation.createNewBid),
-  adminController.createProductBid
+  adminController.createProductBid,
 );
+
+/**
+ * @swagger
+ *  /admin/users/block/:
+ *   post:
+ *     tags: [Admin]
+ *     security:
+ *          - Bearer: []
+ *     description: Block user account
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *     - name: body
+ *       in: body
+ *       description: Mandatory fields
+ *       required: true
+ *       schema:
+ *         type: object
+ *         required:
+ *           - id
+ *           - isReported
+ *           - reason
+ *         properties:
+ *           id:
+ *             type: string
+ *           isReported:
+ *             type: boolean
+ *           reason:
+ *             type: string
+ *     responses:
+ *       200:
+ *         description: Return Message
+ */
+router.post('/users/block', auth(UserRole.ADMIN), validate(userValidation.blockUser), adminController.blockUser);
 
 module.exports = router;
