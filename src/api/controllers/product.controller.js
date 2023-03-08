@@ -27,6 +27,16 @@ const getAllProducts = catchAsync(async (req, res) => {
   return responseHandler.sendSuccess(res, httpStatus.OK, responseMessage.SUCCESS, { products });
 });
 
+const getPendingProducts = catchAsync(async (req, res) => {
+  logger.info('Inside getAllProducts');
+  const filter = pick(req.query, ['category', 'minPrice', 'maxPrice']);
+  const options = pick(req.query, ['limit', 'page', 'sort']);
+
+  const products = await productService.getAllPendingProducts(filter, options);
+
+  return responseHandler.sendSuccess(res, httpStatus.OK, responseMessage.SUCCESS, { products });
+});
+
 const getCategories = catchAsync(async (req, res) => {
   /** Get Category Listing */
   const categories = await productService.getCategories();
@@ -47,4 +57,5 @@ module.exports = {
   getProductDetails,
   updateBid,
   getAllProducts,
+  getPendingProducts,
 };

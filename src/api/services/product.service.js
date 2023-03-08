@@ -115,6 +115,8 @@ const getProductsAggregateQuery = (filter) => {
   query.push(categoryLookupQuery());
   query.push({ $unwind: '$category' });
 
+  query.push({ $sort: { updatedAt: -1 } });
+
   const aggregate = Product.aggregate(query);
   return aggregate;
 };
@@ -197,6 +199,23 @@ const getUserProducts = async (userId, filter, options) => {
 const getAllProducts = async (filter, options) => {
   logger.info('Inside getAllProducts');
   const query = getProductsQuery(filter);
+  logger.info('Query generated');
+  return await aggregateProducts(query, options);
+};
+
+/**
+ * Get All products
+ * @param {Array} args
+ * @returns {Promise<Product>}
+ */
+const getAllPendingProducts = async (filter, options) => {
+  logger.info('Inside getAllProducts');
+
+  const query = getProductsQuery(filter);
+
+  /** Add pending query */
+  query.bidStatus = ProductBidStatus.CREATED;
+
   logger.info('Query generated');
   return await aggregateProducts(query, options);
 };
@@ -297,7 +316,7 @@ const changeHistoryLookupQuery = () => {
    * Lookup editor
    */
   pipelineQuery.push(bidderLookupQuery());
-  pipelineQuery.push({ $unwind: '$bidCreatedBy' });
+  pipelineQuery.push({ $unwind: '$bidCreator' });
 
   /**
    * Lookup responder
@@ -346,7 +365,7 @@ const bidderLookupQuery = () => {
           },
         },
       ],
-      as: 'bidCreatedBy',
+      as: 'bidCreator',
     },
   };
 };
@@ -484,4 +503,5 @@ module.exports = {
   getProductDetails,
   updateBid,
   getAllProducts,
+  getAllPendingProducts,
 };

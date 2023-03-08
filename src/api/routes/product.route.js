@@ -7,6 +7,35 @@ const { productValidation } = require('../validations');
 
 /**
  * @swagger
+ *  /products/pending:
+ *   get:
+ *     tags: [Products]
+ *     security:
+ *          - Bearer: []
+ *     description: Get Pending Products
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *     - name: category
+ *       in: query
+ *     - name: minPrice
+ *       in: query
+ *     - name: maxPrice
+ *       in: query
+ *     - name: limit
+ *       in: query
+ *     - name: sort
+ *       in: query
+ *     - name: page
+ *       in: query
+ *     responses:
+ *       200:
+ *         description: Return Message
+ */
+router.get('/pending', auth(UserRole.ADMIN), productController.getPendingProducts);
+
+/**
+ * @swagger
  *  /products:
  *   get:
  *     tags: [Products]
@@ -110,7 +139,7 @@ router.get('/categories', auth(UserRole.USER, UserRole.ADMIN), productController
  * @swagger
  *  /products/bid:
  *   put:
- *     tags: [Product]
+ *     tags: [Products]
  *     security:
  *          - Bearer: []
  *     description: Update a bid status
@@ -155,7 +184,7 @@ router.put(
  * @swagger
  *  /products/{id}:
  *   get:
- *     tags: [Product]
+ *     tags: [Products]
  *     security:
  *          - Bearer: []
  *     description: Get Product Details
