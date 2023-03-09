@@ -1,10 +1,19 @@
-const { constant, responseMessage, logger, apiError, aggregationPaginate, ProductBidStatus } = require('../utils');
+const {
+  constant,
+  responseMessage,
+  logger,
+  apiError,
+  aggregationPaginate,
+  ProductBidStatus,
+  OrderStatus,
+} = require('../utils');
 const resourceRepo = require('../dataRepositories/resourceRep');
 const httpStatus = require('http-status');
 const { ObjectId } = require('mongodb');
 const { Product } = require('../models');
 const ProductBidHistory = require('../models/product.bid.history.model');
 const { default: mongoose } = require('mongoose');
+const dayjs = require('dayjs');
 
 /**
  * Get Categories
@@ -495,6 +504,81 @@ const updateBid = async (user, body) => {
   }
 };
 
+/**
+ * Update Pickup Date
+ * @param {Object} body
+ * @returns null
+ */
+const updatePickUpDate = async (body) => {
+  const product = await getProductById(body.productId);
+
+  /** Check if product exist */
+  if (!product) {
+    logger.error('Invalid product id => ', id);
+    throw new apiError(httpStatus.NOT_FOUND, responseMessage.PRODUCT_NOT_FOUND);
+  }
+
+  /** Check if product amount has been accepted */
+  if (product.bidStatus !== ProductBidStatus.ACCEPTED) {
+    logger.error('Invalid product id => ', id);
+    throw new apiError(httpStatus.NOT_FOUND, responseMessage.PRODUCT_NOT_ACCEPTED);
+  }
+
+  /** Check if order is still in pending state */
+  if (![OrderStatus.PENDING, OrderStatus.PICKED_UP_DATE_ESTIMATED].includes(product.orderStatus)) {
+    logger.error('Invalid product id => ', id);
+    throw new apiError(httpStatus.NOT_FOUND, responseMessage.PRODUCT_NOT_FOUND);
+  }
+
+  const query = {
+    _id: ObjectId(body.productId),
+  };
+
+  const data = {
+    orderStatus: body.isReported,
+    pickedUpDate: dayjs(body.estimatedPickedUpDate).format(),
+  };
+
+  await resourceRepo.updateOne(constant.COLLECTIONS.PRODUCT, { query, data });
+};
+
+/**
+ * Order pickedUp
+ * @param {Object} body
+ * @returns null
+ */
+const updatePickUp = async (body) => {
+  const product = await getProductById(body.productId);
+
+  /** Check if product exist */
+  if (!product) {
+    logger.info('Invalid product id => ', id);
+    throw new apiError(httpStatus.NOT_FOUND, responseMessage.PRODUCT_NOT_FOUND);
+  }
+
+  /** Check if product amount has been accepted */
+  if (product.bidStatus !== ProductBidStatus.ACCEPTED) {
+    logger.error('Product has been accepted yet => ');
+    throw new apiError(httpStatus.NOT_FOUND, responseMessage.PRODUCT_NOT_ACCEPTED);
+  }
+
+  /** Check if order is still in pending state */
+  if (product.orderStatus === OrderStatus.PICKED_UP_DATE_ESTIMATED) {
+    logger.error(`Order status is = `, product.orderStatus);
+    throw new apiError(httpStatus.NOT_FOUND, responseMessage.PRODUCT_NOT_FOUND);
+  }
+
+  const query = {
+    _id: ObjectId(body.productId),
+  };
+
+  const data = {
+    orderStatus: OrderStatus.PICKED_UP,
+  };
+
+  await resourceRepo.updateOne(constant.COLLECTIONS.PRODUCT, { query, data });
+};
+
 module.exports = {
   getCategories,
   addSellRequest,
@@ -504,4 +588,6 @@ module.exports = {
   updateBid,
   getAllProducts,
   getAllPendingProducts,
+  updatePickUpDate,
+  updatePickUp,
 };

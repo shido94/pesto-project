@@ -10,6 +10,7 @@ module.exports = {
   INVALID_CATEGORY: 'Please select a valid category',
   INVALID_PRODUCT: 'Please select a valid product',
   PRODUCT_NOT_FOUND: 'Product not found',
+  PRODUCT_NOT_ACCEPTED: 'You are not allowed to access this, Product bid is still in pending state',
   BID_NOT_FOUND: 'Bid not found',
   BID_NOT_ALLOWED: 'You are not allowed to edit this bid',
   SUCCESS: 200,

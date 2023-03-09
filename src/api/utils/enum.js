@@ -10,7 +10,7 @@ const UserRole = {
 };
 
 const NotificationTypeEnum = {
-  PAYMENT: "1",
+  PAYMENT: '1',
 };
 
 const NotificationRecipientTypeEnum = {
@@ -20,9 +20,9 @@ const NotificationRecipientTypeEnum = {
 };
 
 const ExpiryUnit = {
-  MINUTE: "m",
-  HOUR: "h",
-  DAY: "d",
+  MINUTE: 'm',
+  HOUR: 'h',
+  DAY: 'd',
 };
 
 const ProductBidStatus = {
@@ -34,7 +34,7 @@ const ProductBidStatus = {
 
 const OrderStatus = {
   PENDING: 1,
-  PICKED_UP_PENDING: 2,
+  PICKED_UP_DATE_ESTIMATED: 2,
   PICKED_UP: 3,
   PAID: 4,
 };

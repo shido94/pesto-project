@@ -59,8 +59,29 @@ const updateBid = {
   }),
 };
 
+const addPickedUpDate = {
+  body: Joi.object().keys({
+    productId: Joi.string().trim().required().messages({
+      'any.required': `productId is required`,
+    }),
+    estimatedPickedUpDate: Joi.string().required().messages({
+      'any.required': `Pick up date is required`,
+    }),
+  }),
+};
+
+const validateProduct = {
+  body: Joi.object().keys({
+    productId: Joi.string().trim().required().messages({
+      'any.required': `productId is required`,
+    }),
+  }),
+};
+
 module.exports = {
   sellProduct,
   createNewBid,
   updateBid,
+  addPickedUpDate,
+  validateProduct,
 };

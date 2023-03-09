@@ -44,9 +44,29 @@ const blockUser = catchAsync(async (req, res) => {
   return responseHandler.sendSuccess(res, httpStatus.OK, responseMessage.SUCCESS, { user });
 });
 
+const updatePickUpDate = catchAsync(async (req, res) => {
+  /** Add user to DB */
+  const body = pick(req.body, ['productId', 'estimatedPickedUpDate']);
+
+  await productService.updatePickUpDate(body);
+
+  return responseHandler.sendSuccess(res, httpStatus.OK, responseMessage.SUCCESS, {});
+});
+
+const updatePickUp = catchAsync(async (req, res) => {
+  /** Add user to DB */
+  const body = pick(req.body, ['productId']);
+
+  await productService.updatePickUpDate(body);
+
+  return responseHandler.sendSuccess(res, httpStatus.OK, responseMessage.SUCCESS, {});
+});
+
 module.exports = {
   login,
   getUsers,
   createProductBid,
   blockUser,
+  updatePickUpDate,
+  updatePickUp,
 };

@@ -131,4 +131,75 @@ router.post(
  */
 router.post('/users/block', auth(UserRole.ADMIN), validate(userValidation.blockUser), adminController.blockUser);
 
+/**
+ * @swagger
+ *  /admin/products/picked-up/date:
+ *   put:
+ *     tags: [Admin]
+ *     security:
+ *          - Bearer: []
+ *     description: Add Picked-Up Date
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *     - name: body
+ *       in: body
+ *       description: Mandatory fields
+ *       required: true
+ *       schema:
+ *         type: object
+ *         required:
+ *           - productId
+ *           - estimatedPickedUpDate
+ *         properties:
+ *           productId:
+ *             type: string
+ *             default: 64020c62f876cda4b0178365
+ *           estimatedPickedUpDate:
+ *             type: string
+ *     responses:
+ *       200:
+ *         description: Return Message
+ */
+router.put(
+  '/products/picked-up/date',
+  auth(UserRole.ADMIN),
+  validate(productValidation.addPickedUpDate),
+  adminController.updatePickUpDate,
+);
+
+/**
+ * @swagger
+ *  /admin/products/picked-up:
+ *   put:
+ *     tags: [Admin]
+ *     security:
+ *          - Bearer: []
+ *     description: Add Picked-Up Date
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *     - name: body
+ *       in: body
+ *       description: Mandatory fields
+ *       required: true
+ *       schema:
+ *         type: object
+ *         required:
+ *           - productId
+ *         properties:
+ *           productId:
+ *             type: string
+ *             default: 64020c62f876cda4b0178365
+ *     responses:
+ *       200:
+ *         description: Return Message
+ */
+router.put(
+  '/products/picked-up',
+  auth(UserRole.ADMIN),
+  validate(productValidation.validateProduct),
+  adminController.updatePickUp,
+);
+
 module.exports = router;
