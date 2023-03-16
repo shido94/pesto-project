@@ -23,8 +23,11 @@ const signup = {
       mobile: Joi.string().trim().required().messages({
         'any.required': `Please enter mobile number`,
       }),
+      identityProofType: Joi.number().required().valid(1, 2).messages({
+        'any.required': `Identity proof type is required`,
+      }),
       identityProofNumber: Joi.string().required().messages({
-        'any.required': `Identity proof is required`,
+        'any.required': `Identity proof number is required`,
       }),
       identityProofImageUri: Joi.string().trim().required().messages({
         'any.required': `Please upload identity proof image`,
@@ -61,7 +64,7 @@ const signup = {
       }),
       UPI: Joi.string().trim(),
     })
-    .xor('bankAccountNumber', 'UPI'),
+    .oxor('bankAccountNumber', 'UPI'),
 };
 
 const verifyAuthOtp = {
@@ -77,8 +80,19 @@ const verifyAuthOtp = {
     .required(),
 };
 
+const resendAuthOtp = {
+  body: Joi.object()
+    .keys({
+      userId: Joi.string().trim().required().messages({
+        'any.required': 'Id is missing',
+      }),
+    })
+    .required(),
+};
+
 module.exports = {
   signup,
   validateMobile,
   verifyAuthOtp,
+  resendAuthOtp,
 };

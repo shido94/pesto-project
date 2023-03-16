@@ -19,5 +19,7 @@ module.exports = (function () {
     DATABASE: process.env.DATABASE || 'mongodb://127.0.0.1:27017/test',
     ACCESS_TOKEN_SECRET: process.env.ACCESS_TOKEN_SECRET,
     REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET,
+    RAZOR_PAY_USERNAME: process.env.RAZOR_PAY_USERNAME,
+    RAZOR_PAY_PASSWORD: process.env.RAZOR_PAY_PASSWORD,
   };
 })();

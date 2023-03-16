@@ -1,8 +1,19 @@
-const { constant, UserRole, aggregationPaginate, logger, responseMessage, apiError } = require('../utils');
+const {
+  constant,
+  UserRole,
+  aggregationPaginate,
+  logger,
+  responseMessage,
+  apiError,
+  randomNumberGenerator,
+  setTimeFactory,
+  ExpiryUnit,
+} = require('../utils');
 const resourceRepo = require('../dataRepositories/resourceRep');
 const { User } = require('../models');
 const httpStatus = require('http-status');
 const { ObjectId } = require('mongodb');
+const paymentService = require('./payment.service');
 
 /**
  * Query for users
@@ -181,6 +192,35 @@ const getUserprofile = async (id) => {
 };
 
 /**
+ * Update user profile
+ * @param {String} userId - user id
+ * @param {Object} profile
+ * @returns {Promise<User>}
+ */
+const updateUserprofile = async (userId, body) => {
+  const user = await getUserById(userId);
+
+  if (!user) {
+    logger.error('User not found with the id ', userId);
+    throw new apiError(httpStatus.NOT_FOUND, responseMessage.NO_USER_FOUND);
+  }
+
+  const query = {
+    _id: ObjectId(userId),
+  };
+
+  await resourceRepo.updateOne(constant.COLLECTIONS.USER, { query, data: body });
+
+  const customerPayload = {
+    name: body.name,
+    mobile: user.mobile,
+    email: body.email,
+  };
+
+  await paymentService.updateCustomer(user.customerId, customerPayload);
+};
+
+/**
  * Report user account
  * @param {Object} body
  * @returns null
@@ -197,6 +237,98 @@ const blockUserAccount = async (body) => {
   await resourceRepo.updateOne(constant.COLLECTIONS.USER, { query, data });
 };
 
+/**
+ * Update user profile
+ * @param {String} userId - user id
+ * @param {Object} profile
+ * @returns {Promise<User>}
+ */
+const updateUserMobile = async (userId, body) => {
+  const user = await getUserById(userId);
+
+  if (!user) {
+    logger.error('User not found with the id ', userId);
+    throw new apiError(httpStatus.NOT_FOUND, responseMessage.NO_USER_FOUND);
+  }
+
+  if (user.mobile === body.mobile) {
+    logger.error('Mobile number exists ', userId);
+    throw new apiError(httpStatus.FORBIDDEN, responseMessage.MOBILE_EXIST);
+  }
+
+  const query = {
+    _id: ObjectId(userId),
+  };
+
+  await resourceRepo.updateOne(constant.COLLECTIONS.USER, { query, data: { tempMobile: body.mobile } });
+
+  const otp = randomNumberGenerator(4);
+  const otpExpiry = setTimeFactory(new Date(), +constant.TOKEN_EXPIRATION, ExpiryUnit.MINUTE);
+
+  /** update otp data */
+  await resourceRepo.updateOne(constant.COLLECTIONS.USER, {
+    query: {
+      _id: user._id,
+    },
+    data: {
+      updateMobileOtp: otp,
+      updateMobileOtpExpiry: otpExpiry,
+    },
+  });
+};
+
+/**
+ * Verify update mobile otp
+ * @param {Object} body
+ * @returns true/false
+ */
+const verifyUpdateMobileOtp = async ({ userId, otp }) => {
+  logger.debug('Inside verifyUpdateMobileOtp');
+  try {
+    const user = await getUserById(userId);
+
+    if (!user.tempMobile || !user.updateMobileOtp || !user.updateMobileOtpExpiry) {
+      logger.error('Already verified');
+      throw new apiError(httpStatus.BAD_REQUEST, responseMessage.INVALID_REQUEST);
+    }
+
+    // TODO - remove static otp
+    if (otp != constant.FAKE_OTP) {
+      logger.error('Invalid otp');
+      throw new apiError(httpStatus.BAD_REQUEST, responseMessage.INCORRECT_OTP);
+    }
+
+    /** Check Expiry */
+    if (user.updateMobileOtpExpiry < new Date().toISOString()) {
+      logger.error('otp expired');
+      throw new apiError(httpStatus.BAD_REQUEST, responseMessage.OTP_EXPIRED);
+    }
+
+    /** update otp data */
+    await resourceRepo.updateOne(constant.COLLECTIONS.USER, {
+      query: {
+        _id: user._id,
+      },
+      data: {
+        updateMobileOtp: '',
+        updateMobileOtpExpiry: '',
+        mobile: user.tempMobile,
+        tempMobile: '',
+      },
+    });
+
+    const customerPayload = {
+      name: user.name,
+      mobile: user.tempMobile,
+      email: user.email,
+    };
+
+    await paymentService.updateCustomer(user.customerId, customerPayload);
+  } catch (error) {
+    throw error;
+  }
+};
+
 module.exports = {
   getUserByEmailOrMobile,
   getUserByEmail,
@@ -205,5 +337,8 @@ module.exports = {
   getUsers,
   queryUsers,
   getUserprofile,
+  updateUserprofile,
   blockUserAccount,
+  updateUserMobile,
+  verifyUpdateMobileOtp,
 };

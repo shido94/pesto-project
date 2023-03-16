@@ -39,6 +39,28 @@ const OrderStatus = {
   PAID: 4,
 };
 
+const CUSTOMER_TYPE = {
+  VENDOR: 'vendor',
+  CUSTOMER: 'customer',
+  EMPLOYEE: 'employee',
+  SELF: 'self',
+};
+
+const RAZOR_PAY_API = {
+  ADD_CUSTOMER: 'contacts',
+  FUND_ACCOUNTS: 'fund_accounts',
+};
+
+const ACCOUNT_TYPE = {
+  VPA: 'vpa',
+  BANK: 'bank_account',
+};
+
+const IDENTITY_PROOF = {
+  PAN: 1,
+  AADHAAR: 2,
+};
+
 module.exports = {
   CategoryEnum,
   NotificationRecipientTypeEnum,
@@ -47,4 +69,8 @@ module.exports = {
   OrderStatus,
   UserRole,
   ExpiryUnit,
+  CUSTOMER_TYPE,
+  RAZOR_PAY_API,
+  ACCOUNT_TYPE,
+  IDENTITY_PROOF,
 };

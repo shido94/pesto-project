@@ -34,11 +34,7 @@ const { authValidation } = require('../validations');
  *       200:
  *         description: Return User
  */
-router.post(
-  '/login',
-  validate(authValidation.validateMobile),
-  authController.login
-);
+router.post('/login', validate(authValidation.validateMobile), authController.login);
 
 /**
  * @swagger
@@ -59,6 +55,7 @@ router.post(
  *           - name
  *           - email
  *           - mobile
+ *           - identityProofType
  *           - identityProofNumber
  *           - identityProofImageUri
  *           - addressLine1
@@ -71,8 +68,12 @@ router.post(
  *             type: string
  *           email:
  *             type: string
+ *             default: test123@test.com
  *           mobile:
  *             type: string
+ *           identityProofType:
+ *             type: number
+ *             default: 1
  *           identityProofNumber:
  *             type: string
  *           identityProofImageUri:
@@ -91,21 +92,20 @@ router.post(
  *             type: string
  *           bankAccountNumber:
  *             type: string
+ *             default: 765432123456789
  *           ifscCode:
  *             type: string
+ *             default: HDFC0000053
  *           accountHolderName:
  *             type: string
+ *             default: Gaurav Kumar
  *           UPI:
  *             type: string
  *     responses:
  *       200:
  *         description: Return User
  */
-router.post(
-  '/signup',
-  validate(authValidation.signup),
-  authController.register
-);
+router.post('/signup', validate(authValidation.signup), authController.register);
 
 /**
  * @swagger
@@ -136,10 +136,33 @@ router.post(
  *       200:
  *         description: Return User and Token
  */
-router.post(
-  '/verify-otp',
-  validate(authValidation.verifyAuthOtp),
-  authController.verifyAuthOtp
-);
+router.post('/verify-otp', validate(authValidation.verifyAuthOtp), authController.verifyAuthOtp);
+
+/**
+ * @swagger
+ * /auth/resend-otp:
+ *   post:
+ *     tags:
+ *       - Auth
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *     - name: body
+ *       in: body
+ *       description: Verify signup otp
+ *       required: true
+ *       schema:
+ *         type: object
+ *         required:
+ *           - userId
+ *         properties:
+ *           userId:
+ *             type: string
+ *             default: 63fcf605a381eaf81ee9cbba
+ *     responses:
+ *       200:
+ *         description: Return User and Token
+ */
+router.post('/resend-otp', validate(authValidation.resendAuthOtp), authController.resendAuthOtp);
 
 module.exports = router;

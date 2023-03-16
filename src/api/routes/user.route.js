@@ -3,6 +3,7 @@ const router = express.Router();
 const { userController } = require('../controllers');
 const { validate, auth } = require('../middleware');
 const { UserRole } = require('../utils');
+const { userValidation, authValidation } = require('../validations');
 
 /**
  * @swagger
@@ -44,6 +45,124 @@ router.get('/', auth(UserRole.ADMIN), userController.getUsers);
  *         description: Return Message
  */
 router.get('/profile', auth(UserRole.USER, UserRole.ADMIN), userController.getUserProfile);
+
+/**
+ * @swagger
+ * /users/profile:
+ *   put:
+ *     tags:
+ *       - Users
+ *     produces:
+ *       - application/json
+ *     security:
+ *          - Bearer: []
+ *     parameters:
+ *     - name: body
+ *       in: body
+ *       description: Update user profile
+ *       required: true
+ *       schema:
+ *         type: object
+ *         required:
+ *           - name
+ *           - email
+ *           - identityProofNumber
+ *           - identityProofImageUri
+ *           - addressLine1
+ *           - city
+ *           - state
+ *           - zipCode
+ *           - country
+ *         properties:
+ *           name:
+ *             type: string
+ *           email:
+ *             type: string
+ *           identityProofNumber:
+ *             type: string
+ *           identityProofImageUri:
+ *             type: string
+ *           addressLine1:
+ *             type: string
+ *           landmark:
+ *             type: string
+ *           city:
+ *             type: string
+ *           state:
+ *             type: string
+ *           zipCode:
+ *             type: string
+ *           country:
+ *             type: string
+ *     responses:
+ *       200:
+ *         description: Return User
+ */
+router.put(
+  '/profile',
+  auth(UserRole.USER, UserRole.ADMIN),
+  validate(userValidation.updateProfile),
+  userController.updateProfile,
+);
+
+/**
+ * @swagger
+ * /users/mobile:
+ *   put:
+ *     tags:
+ *       - Users
+ *     produces:
+ *       - application/json
+ *     security:
+ *          - Bearer: []
+ *     parameters:
+ *     - name: body
+ *       in: body
+ *       description: Update mobile number
+ *       required: true
+ *       schema:
+ *         type: object
+ *         required:
+ *           - mobile
+ *         properties:
+ *           mobile:
+ *             type: string
+ *     responses:
+ *       200:
+ *         description: Return User
+ */
+router.put('/mobile', auth(UserRole.USER), validate(userValidation.updateMobile), userController.updateMobile);
+
+/**
+ * @swagger
+ * /users/verify-mobile-otp:
+ *   post:
+ *     tags:
+ *       - Users
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *     - name: body
+ *       in: body
+ *       description: Verify signup otp
+ *       required: true
+ *       schema:
+ *         type: object
+ *         required:
+ *           - userId
+ *           - otp
+ *         properties:
+ *           userId:
+ *             type: string
+ *             default: 63fcf605a381eaf81ee9cbba
+ *           otp:
+ *             type: string
+ *             default: 1234
+ *     responses:
+ *       200:
+ *         description: Return User and Token
+ */
+router.post('/verify-mobile-otp', validate(authValidation.verifyAuthOtp), userController.verifyAuthOtp);
 
 /**
  * @swagger

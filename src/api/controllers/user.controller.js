@@ -41,9 +41,35 @@ const getUserByUserId = catchAsync(async (req, res) => {
   return responseHandler.sendSuccess(res, httpStatus.OK, responseMessage.SUCCESS, { user });
 });
 
+const updateProfile = catchAsync(async (req, res) => {
+  /** Add user to DB */
+  await userService.updateUserprofile(req.user.sub, req.body);
+
+  return responseHandler.sendSuccess(res, httpStatus.OK, responseMessage.SUCCESS);
+});
+
+const updateMobile = catchAsync(async (req, res) => {
+  /** Add user to DB */
+
+  await userService.updateUserMobile(req.user.sub, req.body);
+
+  return responseHandler.sendSuccess(res, httpStatus.OK, responseMessage.SUCCESS);
+});
+
+const verifyAuthOtp = catchAsync(async (req, res) => {
+  /** Verify otp */
+  await userService.verifyUpdateMobileOtp(req.body);
+  logger.info('User created');
+
+  return responseHandler.sendSuccess(res, httpStatus.OK, responseMessage.SUCCESS);
+});
+
 module.exports = {
   getUsers,
   getUserProfile,
   getUserByUserId,
   getUserProducts,
+  updateProfile,
+  updateMobile,
+  verifyAuthOtp,
 };

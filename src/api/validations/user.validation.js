@@ -24,4 +24,46 @@ const blockUser = {
   }),
 };
 
-module.exports = { cityWeatherQuery, blockUser };
+const updateProfile = {
+  body: Joi.object().keys({
+    name: Joi.string().trim().required().messages({
+      'string.base': `Name must be string`,
+    }),
+    email: Joi.string().trim().email().messages({
+      'string.base': `Email must be string`,
+      'any.email': 'Email is not valid',
+    }),
+    identityProofNumber: Joi.string().required().messages({
+      'any.required': `Identity proof is required`,
+    }),
+    identityProofImageUri: Joi.string().trim().required().messages({
+      'any.required': `Please upload identity proof image`,
+    }),
+    addressLine1: Joi.string().trim().required().messages({
+      'any.required': `Address is missing`,
+    }),
+    landmark: Joi.string().trim(),
+    city: Joi.string().trim().required().messages({
+      'any.required': `City is missing`,
+    }),
+    state: Joi.string().required().messages({
+      'any.required': `State is required`,
+    }),
+    zipCode: Joi.string().trim().required().messages({
+      'any.required': `ZipCode is missing`,
+    }),
+    country: Joi.string().trim().required().messages({
+      'any.required': `Country is missing`,
+    }),
+  }),
+};
+
+const updateMobile = {
+  body: Joi.object().keys({
+    mobile: Joi.string().trim().required().messages({
+      'any.required': `Please enter mobile number`,
+    }),
+  }),
+};
+
+module.exports = { cityWeatherQuery, blockUser, updateProfile, updateMobile };

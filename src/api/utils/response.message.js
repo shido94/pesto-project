@@ -30,4 +30,5 @@ module.exports = {
   OTP_EXPIRED: 'Otp has been expired',
   OTP_SENT: 'Otp has been sent to your registered number',
   BLOCKED: 'Your account has been blocked, Please contact to admin',
+  MOBILE_EXIST: 'This mobile number is already registered with different user',
 };

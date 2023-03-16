@@ -24,8 +24,16 @@ const userSchema = Schema(
       unique: true,
       required: true,
     },
+    tempMobile: {
+      type: String,
+      unique: true,
+    },
     profileUri: {
       type: String,
+    },
+    identityProofType: {
+      type: Number,
+      required: true,
     },
     identityProofNumber: {
       type: String,
@@ -70,10 +78,16 @@ const userSchema = Schema(
     ifscCode: {
       type: String,
     },
+    customerId: {
+      type: String,
+    },
     accountHolderName: {
       type: String,
     },
     UPI: {
+      type: String,
+    },
+    fundAccountId: {
       type: String,
     },
     isReported: {
@@ -87,6 +101,12 @@ const userSchema = Schema(
       type: String,
     },
     otpExpiry: {
+      type: String,
+    },
+    updateMobileOtp: {
+      type: String,
+    },
+    updateMobileOtpExpiry: {
       type: String,
     },
   },
