@@ -5,7 +5,6 @@ const productService = require('./product.service');
 const adminService = require('./admin.service');
 const httpService = require('./http.service');
 const paymentService = require('./payment.service');
-const hookService = require('./hook.service');
 
 module.exports = {
   userService,
@@ -15,5 +14,4 @@ module.exports = {
   adminService,
   httpService,
   paymentService,
-  hookService,
 };

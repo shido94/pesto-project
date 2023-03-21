@@ -639,6 +639,12 @@ const makePayoutToUser = async (paidBy, body) => {
   }
 
   /** Check if order is still in pending state */
+  if (product.orderStatus === OrderStatus.PAID) {
+    logger.error(`Order status is = `, product.orderStatus);
+    throw new apiError(httpStatus.FORBIDDEN, responseMessage.PRODUCT_PAID);
+  }
+
+  /** Check if order is still in pending state */
   if (product.orderStatus !== OrderStatus.PICKED_UP) {
     logger.error(`Order status is = `, product.orderStatus);
     throw new apiError(httpStatus.FORBIDDEN, responseMessage.PRODUCT_NOT_PICKED);
@@ -646,15 +652,14 @@ const makePayoutToUser = async (paidBy, body) => {
 
   const payment = await paymentService.createPayment(paidBy, product);
 
-  if (payment.status === PAYMENT_STATUS.PROCESSED) {
-    const query = {
-      _id: ObjectId(body.productId),
-    };
-    const data = {
-      orderStatus: OrderStatus.PAID,
-    };
-    await resourceRepo.updateOne(constant.COLLECTIONS.PRODUCT, { query, data });
-  }
+  const query = {
+    _id: ObjectId(body.productId),
+  };
+  const data = {
+    orderStatus: OrderStatus.PAID,
+  };
+
+  await resourceRepo.updateOne(constant.COLLECTIONS.PRODUCT, { query, data });
 };
 
 module.exports = {

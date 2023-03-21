@@ -30,6 +30,5 @@ module.exports = {
     PRODUCT: 'Product',
     BID_HISTORY: 'ProductBidHistory',
     PAYMENT: 'Payment',
-    PAYMENT_LOGS: 'Logs',
   },
 };

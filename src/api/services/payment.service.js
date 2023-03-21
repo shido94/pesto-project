@@ -83,25 +83,28 @@ const addUserFundAccount = async (params) => {
 
 const createPayment = async (paidBy, product) => {
   logger.info('Inside createPayment');
-  /** Create Payout */
-  const payout = await payoutToUser(product.createdByDetails, product);
-  logger.info('Payout is done');
 
-  console.log(payout);
+  try {
+    /** Create Payout */
+    const payout = await payoutToUser(product.createdByDetails, product);
+    logger.info('Payout is done');
 
-  const data = {
-    paidBy: paidBy,
-    paidTo: product.createdBy,
-    productId: product._id,
-    payoutId: payout.id,
-    amount: payout.amount / 100, // Convert paisa in rupees
-    status: payout.status,
-  };
+    const data = {
+      paidBy: paidBy,
+      paidTo: product.createdBy,
+      productId: product._id,
+      payoutId: payout.id,
+      amount: payout.amount / 100, // Convert paisa in rupees
+      status: payout.status,
+    };
 
-  /** update otp data */
-  return resourceRepo.create(constant.COLLECTIONS.PAYMENT, {
-    data: data,
-  });
+    /** update otp data */
+    return resourceRepo.create(constant.COLLECTIONS.PAYMENT, {
+      data: data,
+    });
+  } catch (error) {
+    throw new Error('Something went wrong');
+  }
 };
 
 /**
@@ -114,11 +117,11 @@ const payoutToUser = async (user, product) => {
     const payload = {
       account_number: constant.RAZOR_PAY.ACCOUNT,
       fund_account_id: user.fundAccountId,
-      amount: product.acceptedAmount,
+      amount: product.acceptedAmount * 100,
       currency: 'INR',
       mode: 'IMPS',
       purpose: 'payout',
-      queue_if_low_balance: true,
+      queue_if_low_balance: false,
       reference_id: `Product Id => ${product._id.toString()}`,
       narration: 'Paying for user product',
       notes: {
