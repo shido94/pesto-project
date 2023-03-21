@@ -9,7 +9,7 @@ const {
   setTimeFactory,
   ExpiryUnit,
 } = require('../utils');
-const resourceRepo = require('../dataRepositories/resourceRep');
+const resourceRepo = require('../dataRepositories/resourceRepo');
 const { User } = require('../models');
 const httpStatus = require('http-status');
 const { ObjectId } = require('mongodb');
@@ -329,6 +329,38 @@ const verifyUpdateMobileOtp = async ({ userId, otp }) => {
   }
 };
 
+/**
+ * Update user profile
+ * @param {String} userId - user id
+ * @param {Object} profile
+ * @returns {Promise<User>}
+ */
+const updateFund = async (userId, body) => {
+  const user = await getUserById(userId);
+
+  if (!user) {
+    logger.error('User not found with the id ', userId);
+    throw new apiError(httpStatus.NOT_FOUND, responseMessage.NO_USER_FOUND);
+  }
+
+  body.customerId = user.customerId;
+  const fund = await paymentService.addUserFundAccount(body);
+
+  /** update funds in db */
+  await resourceRepo.updateOne(constant.COLLECTIONS.USER, {
+    query: {
+      _id: user._id,
+    },
+    data: {
+      bankAccountNumber: body.bankAccountNumber || '',
+      ifscCode: body.ifscCode || '',
+      accountHolderName: body.accountHolderName || '',
+      UPI: body.UPI || '',
+      fundAccountId: fund.id,
+    },
+  });
+};
+
 module.exports = {
   getUserByEmailOrMobile,
   getUserByEmail,
@@ -341,4 +373,5 @@ module.exports = {
   blockUserAccount,
   updateUserMobile,
   verifyUpdateMobileOtp,
+  updateFund,
 };

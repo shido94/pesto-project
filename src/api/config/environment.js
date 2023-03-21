@@ -21,5 +21,6 @@ module.exports = (function () {
     REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET,
     RAZOR_PAY_USERNAME: process.env.RAZOR_PAY_USERNAME,
     RAZOR_PAY_PASSWORD: process.env.RAZOR_PAY_PASSWORD,
+    RAZOR_PAY_ACCOUNT: process.env.RAZOR_PAY_ACCOUNT,
   };
 })();

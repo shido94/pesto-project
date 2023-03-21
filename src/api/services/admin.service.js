@@ -1,13 +1,7 @@
 const httpStatus = require('http-status');
 const userService = require('./user.service');
-const {
-  logger,
-  apiError,
-  responseMessage,
-  constant,
-  UserRole,
-} = require('../utils');
-const resourceRepo = require('../dataRepositories/resourceRep');
+const { logger, apiError, responseMessage, constant, UserRole } = require('../utils');
+const resourceRepo = require('../dataRepositories/resourceRepo');
 
 /**
  * Login with email and password
@@ -21,21 +15,12 @@ const login = async (email, password) => {
 
   if (!user) {
     logger.info('Invalid Email => ', email);
-    throw new apiError(
-      httpStatus.UNAUTHORIZED,
-      responseMessage.INVALID_CREDENTIAL_MSG
-    );
+    throw new apiError(httpStatus.UNAUTHORIZED, responseMessage.INVALID_CREDENTIAL_MSG);
   }
 
-  if (
-    !(await user.isPasswordMatch(password)) ||
-    !(user.role === UserRole.ADMIN)
-  ) {
+  if (!(await user.isPasswordMatch(password)) || !(user.role === UserRole.ADMIN)) {
     logger.info('Invalid Password');
-    throw new apiError(
-      httpStatus.UNAUTHORIZED,
-      responseMessage.INVALID_CREDENTIAL_MSG
-    );
+    throw new apiError(httpStatus.UNAUTHORIZED, responseMessage.INVALID_CREDENTIAL_MSG);
   }
   return user;
 };

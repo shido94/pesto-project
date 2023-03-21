@@ -78,10 +78,22 @@ const validateProduct = {
   }),
 };
 
+const payout = {
+  body: Joi.object().keys({
+    productId: Joi.string().trim().required().messages({
+      'any.required': `productId is required`,
+    }),
+    userId: Joi.string().trim().required().messages({
+      'any.required': `userId is required`,
+    }),
+  }),
+};
+
 module.exports = {
   sellProduct,
   createNewBid,
   updateBid,
   addPickedUpDate,
   validateProduct,
+  payout,
 };

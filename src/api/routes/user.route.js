@@ -177,6 +177,8 @@ router.post('/verify-mobile-otp', validate(authValidation.verifyAuthOtp), userCo
  *     parameters:
  *     - name: category
  *       in: query
+ *     - name: bidStatus
+ *       in: query
  *     - name: minPrice
  *       in: query
  *     - name: maxPrice
@@ -192,6 +194,41 @@ router.post('/verify-mobile-otp', validate(authValidation.verifyAuthOtp), userCo
  *         description: Return Message
  */
 router.get('/products', auth(UserRole.USER), userController.getUserProducts);
+
+/**
+ * @swagger
+ * /users/fund:
+ *   put:
+ *     tags:
+ *       - Users
+ *     produces:
+ *       - application/json
+ *     security:
+ *          - Bearer: []
+ *     parameters:
+ *     - name: body
+ *       in: body
+ *       description: Update user fund details
+ *       required: true
+ *       schema:
+ *         type: object
+ *         properties:
+ *           bankAccountNumber:
+ *             type: string
+ *             default: 765432123456789
+ *           ifscCode:
+ *             type: string
+ *             default: HDFC0000053
+ *           accountHolderName:
+ *             type: string
+ *             default: Gaurav Kumar
+ *           UPI:
+ *             type: string
+ *     responses:
+ *       200:
+ *         description: Return User
+ */
+router.put('/fund', auth(UserRole.USER), validate(userValidation.updateFund), userController.updateFundDetails);
 
 /**
  * @swagger

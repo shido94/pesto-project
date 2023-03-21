@@ -2,6 +2,7 @@ const axios = require('axios');
 const httpService = require('./http.service');
 const { constant, logger } = require('../utils');
 const { CUSTOMER_TYPE, RAZOR_PAY_API, ACCOUNT_TYPE } = require('../utils/enum');
+const resourceRepo = require('../dataRepositories/resourceRepo');
 
 /**
  * Add Customer
@@ -48,8 +49,8 @@ const updateCustomer = async (id, { name, email, mobile }) => {
  * Create FundAccount
  * @returns {Promise<FundAccount>}
  */
-const addUserAccount = async (params) => {
-  logger.info('inside addUserAccount');
+const addUserFundAccount = async (params) => {
+  logger.info('inside addUserFundAccount');
   try {
     let payload = {};
 
@@ -80,8 +81,62 @@ const addUserAccount = async (params) => {
   }
 };
 
+const createPayment = async (paidBy, product) => {
+  logger.info('Inside createPayment');
+  /** Create Payout */
+  const payout = await payoutToUser(product.createdByDetails, product);
+  logger.info('Payout is done');
+
+  console.log(payout);
+
+  const data = {
+    paidBy: paidBy,
+    paidTo: product.createdBy,
+    productId: product._id,
+    payoutId: payout.id,
+    amount: payout.amount / 100, // Convert paisa in rupees
+    status: payout.status,
+  };
+
+  /** update otp data */
+  return resourceRepo.create(constant.COLLECTIONS.PAYMENT, {
+    data: data,
+  });
+};
+
+/**
+ * Make a payout
+ * @returns {Promise<Payout>}
+ */
+const payoutToUser = async (user, product) => {
+  logger.info('inside payoutToUser');
+  try {
+    const payload = {
+      account_number: constant.RAZOR_PAY.ACCOUNT,
+      fund_account_id: user.fundAccountId,
+      amount: product.acceptedAmount,
+      currency: 'INR',
+      mode: 'IMPS',
+      purpose: 'payout',
+      queue_if_low_balance: true,
+      reference_id: `Product Id => ${product._id.toString()}`,
+      narration: 'Paying for user product',
+      notes: {
+        userId: user._id.toString(),
+        productId: product._id.toString(),
+      },
+    };
+
+    return await httpService.post(constant.RAZOR_PAY.URI + '/' + RAZOR_PAY_API.PAYOUT, payload);
+  } catch (error) {
+    logger.error(error);
+    throw error;
+  }
+};
+
 module.exports = {
   addCustomer,
   updateCustomer,
-  addUserAccount,
+  addUserFundAccount,
+  createPayment,
 };

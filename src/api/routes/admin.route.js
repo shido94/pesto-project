@@ -202,4 +202,41 @@ router.put(
   adminController.updatePickUp,
 );
 
+/**
+ * @swagger
+ *  /admin/products/payout:
+ *   put:
+ *     tags: [Admin]
+ *     security:
+ *          - Bearer: []
+ *     description: Make payout to user
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *     - name: body
+ *       in: body
+ *       description: Mandatory fields
+ *       required: true
+ *       schema:
+ *         type: object
+ *         required:
+ *           - productId
+ *         properties:
+ *           productId:
+ *             type: string
+ *             default: 64020c62f876cda4b0178365
+ *           userId:
+ *             type: string
+ *             default: 63fcf605a381eaf81ee9cbba
+ *     responses:
+ *       200:
+ *         description: Return Message
+ */
+router.put(
+  '/products/payout',
+  auth(UserRole.ADMIN),
+  validate(productValidation.payout),
+  adminController.makePayoutToUser,
+);
+
 module.exports = router;

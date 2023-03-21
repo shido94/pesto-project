@@ -7,13 +7,15 @@ const {
   ProductBidStatus,
   OrderStatus,
 } = require('../utils');
-const resourceRepo = require('../dataRepositories/resourceRep');
+const resourceRepo = require('../dataRepositories/resourceRepo');
 const httpStatus = require('http-status');
 const { ObjectId } = require('mongodb');
 const { Product } = require('../models');
 const ProductBidHistory = require('../models/product.bid.history.model');
 const { default: mongoose } = require('mongoose');
 const dayjs = require('dayjs');
+const paymentService = require('./payment.service');
+const { PAYMENT_STATUS } = require('../utils/enum');
 
 /**
  * Get Categories
@@ -43,6 +45,33 @@ const getProductById = async (id) => {
     _id: ObjectId(id),
   };
   return resourceRepo.findOne(constant.COLLECTIONS.PRODUCT, { query });
+};
+
+const creatorLookupQuery = () => {
+  return {
+    $lookup: {
+      from: 'users',
+      let: { model_id: '$createdBy' },
+      pipeline: [
+        {
+          $match: {
+            $expr: { $eq: ['$_id', '$$model_id'] },
+          },
+        },
+        {
+          $project: {
+            email: 1,
+            mobile: 1,
+            role: 1,
+            profileUri: 1,
+            name: 1,
+            fundAccountId: 1,
+          },
+        },
+      ],
+      as: 'createdByDetails',
+    },
+  };
 };
 
 /**
@@ -93,6 +122,9 @@ function getProductsQuery(args) {
   if (args.category) {
     filter.categoryId = ObjectId(args.category);
   }
+  if (args.bidStatus) {
+    filter.bidStatus = +args.bidStatus;
+  }
   if (args.minPrice > -1 && args.maxPrice > args.minPrice) {
     filter.acceptedAmount = {
       $lte: args.maxPrice,
@@ -123,6 +155,12 @@ const getProductsAggregateQuery = (filter) => {
    */
   query.push(categoryLookupQuery());
   query.push({ $unwind: '$category' });
+
+  /**
+   * Get Created by details
+   */
+  query.push(creatorLookupQuery());
+  query.push({ $unwind: '$createdByDetails' });
 
   query.push({ $sort: { updatedAt: -1 } });
 
@@ -535,7 +573,7 @@ const updatePickUpDate = async (body) => {
   };
 
   const data = {
-    orderStatus: body.isReported,
+    orderStatus: OrderStatus.PICKED_UP_DATE_ESTIMATED,
     pickedUpDate: dayjs(body.estimatedPickedUpDate).format(),
   };
 
@@ -547,7 +585,7 @@ const updatePickUpDate = async (body) => {
  * @param {Object} body
  * @returns null
  */
-const updatePickUp = async (body) => {
+const orderPickedUp = async (body) => {
   const product = await getProductById(body.productId);
 
   /** Check if product exist */
@@ -563,9 +601,9 @@ const updatePickUp = async (body) => {
   }
 
   /** Check if order is still in pending state */
-  if (product.orderStatus === OrderStatus.PICKED_UP_DATE_ESTIMATED) {
+  if (product.orderStatus !== OrderStatus.PICKED_UP_DATE_ESTIMATED) {
     logger.error(`Order status is = `, product.orderStatus);
-    throw new apiError(httpStatus.NOT_FOUND, responseMessage.PRODUCT_NOT_FOUND);
+    throw new apiError(httpStatus.NOT_FOUND, responseMessage.PICKED_UP_NOT_ESTIMATED);
   }
 
   const query = {
@@ -579,6 +617,46 @@ const updatePickUp = async (body) => {
   await resourceRepo.updateOne(constant.COLLECTIONS.PRODUCT, { query, data });
 };
 
+/**
+ * Order pickedUp
+ * @param {Object} body
+ * @returns null
+ */
+const makePayoutToUser = async (paidBy, body) => {
+  const products = await getProductsAggregateQuery({ _id: ObjectId(body.productId), createdBy: ObjectId(body.userId) });
+  const product = products.length ? products[0] : {};
+
+  /** Check if product exist */
+  if (!product) {
+    logger.info('No Product found with this user => ', id);
+    throw new apiError(httpStatus.NOT_FOUND, responseMessage.PRODUCT_NOT_FOUND);
+  }
+
+  /** Check if product amount has been accepted */
+  if (product.bidStatus !== ProductBidStatus.ACCEPTED) {
+    logger.error('Product has been accepted yet => ');
+    throw new apiError(httpStatus.NOT_FOUND, responseMessage.PRODUCT_NOT_ACCEPTED);
+  }
+
+  /** Check if order is still in pending state */
+  if (product.orderStatus !== OrderStatus.PICKED_UP) {
+    logger.error(`Order status is = `, product.orderStatus);
+    throw new apiError(httpStatus.FORBIDDEN, responseMessage.PRODUCT_NOT_PICKED);
+  }
+
+  const payment = await paymentService.createPayment(paidBy, product);
+
+  if (payment.status === PAYMENT_STATUS.PROCESSED) {
+    const query = {
+      _id: ObjectId(body.productId),
+    };
+    const data = {
+      orderStatus: OrderStatus.PAID,
+    };
+    await resourceRepo.updateOne(constant.COLLECTIONS.PRODUCT, { query, data });
+  }
+};
+
 module.exports = {
   getCategories,
   addSellRequest,
@@ -589,5 +667,6 @@ module.exports = {
   getAllProducts,
   getAllPendingProducts,
   updatePickUpDate,
-  updatePickUp,
+  orderPickedUp,
+  makePayoutToUser,
 };

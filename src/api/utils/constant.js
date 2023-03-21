@@ -13,6 +13,7 @@ module.exports = {
   RAZOR_PAY: {
     USERNAME: config.RAZOR_PAY_USERNAME,
     PASSWORD: config.RAZOR_PAY_PASSWORD,
+    ACCOUNT: config.RAZOR_PAY_ACCOUNT,
     URI: 'https://api.razorpay.com/v1',
   },
 
@@ -28,5 +29,7 @@ module.exports = {
     CATEGORY: 'Category',
     PRODUCT: 'Product',
     BID_HISTORY: 'ProductBidHistory',
+    PAYMENT: 'Payment',
+    PAYMENT_LOGS: 'Logs',
   },
 };

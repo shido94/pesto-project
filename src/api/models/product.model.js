@@ -37,7 +37,6 @@ const productSchema = Schema(
     acceptedAmount: {
       type: String,
     },
-    // actionStatus => 1-created, 2-rejected, 3-accepted, 4-counter
     orderStatus: {
       type: Number,
       default: 1,
@@ -45,6 +44,7 @@ const productSchema = Schema(
     pickedUpDate: {
       type: Date,
     },
+    // bidStatus => 1-created, 2-rejected, 3-accepted, 4-counter
     bidStatus: {
       type: Number,
       default: 1,

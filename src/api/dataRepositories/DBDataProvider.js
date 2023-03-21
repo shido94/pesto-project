@@ -1,4 +1,4 @@
-const domain = require("../models");
+const domain = require('../models');
 
 class DbDataProvider {
   constructor() {}

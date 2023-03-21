@@ -17,7 +17,7 @@ const getUsers = catchAsync(async (req, res) => {
 
 const getUserProducts = catchAsync(async (req, res) => {
   logger.info('Inside getUserProducts');
-  const filter = pick(req.query, ['category', 'minPrice', 'maxPrice']);
+  const filter = pick(req.query, ['category', 'bidStatus', 'minPrice', 'maxPrice']);
   const options = pick(req.query, ['limit', 'page', 'sort']);
 
   const products = await productService.getUserProducts(req.user.sub, filter, options);
@@ -64,6 +64,13 @@ const verifyAuthOtp = catchAsync(async (req, res) => {
   return responseHandler.sendSuccess(res, httpStatus.OK, responseMessage.SUCCESS);
 });
 
+const updateFundDetails = catchAsync(async (req, res) => {
+  /** Add user to DB */
+  await userService.updateFund(req.user.sub, req.body);
+
+  return responseHandler.sendSuccess(res, httpStatus.OK, responseMessage.SUCCESS);
+});
+
 module.exports = {
   getUsers,
   getUserProfile,
@@ -72,4 +79,5 @@ module.exports = {
   updateProfile,
   updateMobile,
   verifyAuthOtp,
+  updateFundDetails,
 };

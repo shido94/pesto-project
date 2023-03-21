@@ -12,7 +12,7 @@ const {
   ExpiryUnit,
   UserRole,
 } = require('../utils');
-const resourceRepo = require('../dataRepositories/resourceRep');
+const resourceRepo = require('../dataRepositories/resourceRepo');
 
 /**
  * Register user
@@ -37,7 +37,7 @@ const register = async (body) => {
     body.customerId = customer.id;
 
     if (body.UPI || body.bankAccountNumber) {
-      const fund = await paymentService.addUserAccount(body);
+      const fund = await paymentService.addUserFundAccount(body);
       body.fundAccountId = fund.id;
     }
 

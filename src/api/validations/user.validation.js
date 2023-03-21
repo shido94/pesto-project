@@ -66,4 +66,25 @@ const updateMobile = {
   }),
 };
 
-module.exports = { cityWeatherQuery, blockUser, updateProfile, updateMobile };
+const updateFund = {
+  body: Joi.object()
+    .keys({
+      bankAccountNumber: Joi.string().trim(),
+      ifscCode: Joi.string().when('bankAccountNumber', {
+        is: Joi.string().required(),
+        then: Joi.string().required().messages({
+          'any.required': `ifsc code is required`,
+        }),
+      }),
+      accountHolderName: Joi.string().when('bankAccountNumber', {
+        is: Joi.string().required(),
+        then: Joi.string().required().messages({
+          'any.required': 'Account holder name is required',
+        }),
+      }),
+      UPI: Joi.string().trim(),
+    })
+    .oxor('bankAccountNumber', 'UPI'),
+};
+
+module.exports = { cityWeatherQuery, blockUser, updateProfile, updateMobile, updateFund };

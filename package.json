@@ -47,6 +47,7 @@
     "swagger-jsdoc": "^6.1.0",
     "swagger-model-validator": "^3.0.21",
     "swagger-ui-express": "^4.3.0",
+    "twilio": "^4.8.0",
     "uuid": "^8.3.2",
     "winston": "^3.6.0",
     "winston-logrotate": "^1.3.0"

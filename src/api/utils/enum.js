@@ -49,6 +49,7 @@ const CUSTOMER_TYPE = {
 const RAZOR_PAY_API = {
   ADD_CUSTOMER: 'contacts',
   FUND_ACCOUNTS: 'fund_accounts',
+  PAYOUT: 'payouts',
 };
 
 const ACCOUNT_TYPE = {
@@ -59,6 +60,16 @@ const ACCOUNT_TYPE = {
 const IDENTITY_PROOF = {
   PAN: 1,
   AADHAAR: 2,
+};
+
+const PAYMENT_STATUS = {
+  QUEUED: 'queued',
+  PENDING: 'pending',
+  REJECTED: 'rejected',
+  PROCESSING: 'processing',
+  PROCESSED: 'processed',
+  CANCELLED: 'cancelled',
+  REVERSED: 'reversed',
 };
 
 module.exports = {
@@ -73,4 +84,5 @@ module.exports = {
   RAZOR_PAY_API,
   ACCOUNT_TYPE,
   IDENTITY_PROOF,
+  PAYMENT_STATUS,
 };

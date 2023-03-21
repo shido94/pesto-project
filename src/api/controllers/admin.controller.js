@@ -57,7 +57,16 @@ const updatePickUp = catchAsync(async (req, res) => {
   /** Add user to DB */
   const body = pick(req.body, ['productId']);
 
-  await productService.updatePickUpDate(body);
+  await productService.orderPickedUp(body);
+
+  return responseHandler.sendSuccess(res, httpStatus.OK, responseMessage.SUCCESS, {});
+});
+
+const makePayoutToUser = catchAsync(async (req, res) => {
+  /** Add user to DB */
+  const body = pick(req.body, ['productId', 'userId']);
+
+  await productService.makePayoutToUser(req.user.sub, body);
 
   return responseHandler.sendSuccess(res, httpStatus.OK, responseMessage.SUCCESS, {});
 });
@@ -69,4 +78,5 @@ module.exports = {
   blockUser,
   updatePickUpDate,
   updatePickUp,
+  makePayoutToUser,
 };
