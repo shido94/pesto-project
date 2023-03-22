@@ -116,6 +116,48 @@ const addSellRequest = async (body, user) => {
   await resourceRepo.create(constant.COLLECTIONS.PRODUCT, { data });
 };
 
+/**
+ * Edit sell request
+ * @param {Object} body
+ * @param {Object} user
+ * @returns {Promise<Category>}
+ */
+const editProduct = async (body, user) => {
+  const category = await getCategoryById(body.categoryId);
+  if (!category) {
+    logger.info('Invalid category id => ', body.categoryId);
+    throw new apiError(httpStatus.BAD_REQUEST, responseMessage.INVALID_CATEGORY);
+  }
+
+  const product = await getProductDetailsById(body.productId);
+
+  if (product.bidHistory.length) {
+    logger.info('Bidding has started => ', body.productId);
+    throw new apiError(httpStatus.BAD_REQUEST, responseMessage.BIDDING_STARTED);
+  }
+
+  const query = {
+    productId: body.productId,
+  };
+
+  const data = {
+    categoryId: body.categoryId,
+    type: body.type,
+    title: body.title,
+    description: body.description,
+    brand: body.brand,
+    purchasedYear: body.purchasedYear,
+    distanceDriven: body.distanceDriven,
+    offeredAmount: body.offeredAmount,
+    createdBy: user.sub,
+    pickupAddress: body.pickupAddress,
+    images: body.images,
+  };
+
+  /** Add new  product request */
+  await resourceRepo.updateOne(constant.COLLECTIONS.PRODUCT, { query, data });
+};
+
 function getProductsQuery(args) {
   const filter = {};
 
@@ -161,6 +203,8 @@ const getProductsAggregateQuery = (filter) => {
    */
   query.push(creatorLookupQuery());
   query.push({ $unwind: '$createdByDetails' });
+
+  query.push(changeHistoryLookupQuery());
 
   query.push({ $sort: { updatedAt: -1 } });
 
@@ -311,7 +355,7 @@ const createNewBid = async (user, body) => {
  * @param {String} id
  * @returns {Promise<Product>}
  */
-const getProductDetails = async (id) => {
+const getProductDetailsById = async (id) => {
   const query = [];
   /**
    * Query
@@ -667,11 +711,12 @@ module.exports = {
   addSellRequest,
   getUserProducts,
   createNewBid,
-  getProductDetails,
+  getProductDetailsById,
   updateBid,
   getAllProducts,
   getAllPendingProducts,
   updatePickUpDate,
   orderPickedUp,
   makePayoutToUser,
+  editProduct,
 };

@@ -4,15 +4,23 @@ const { productService } = require('../services');
 const { responseHandler } = require('../handlers');
 
 const getProductDetails = catchAsync(async (req, res) => {
-  const product = await productService.getProductDetails(req.params.id);
+  const product = await productService.getProductDetailsById(req.params.id);
 
   return responseHandler.sendSuccess(res, httpStatus.OK, responseMessage.SUCCESS, { product });
 });
 
 const addSellProductRequest = catchAsync(async (req, res) => {
-  /** Add user to DB */
+  /** Add product request */
 
   await productService.addSellRequest(req.body, req.user);
+
+  return responseHandler.sendSuccess(res, httpStatus.OK, responseMessage.SUCCESS);
+});
+
+const editProduct = catchAsync(async (req, res) => {
+  /** Edit product request */
+
+  await productService.editProduct(req.body, req.user);
 
   return responseHandler.sendSuccess(res, httpStatus.OK, responseMessage.SUCCESS);
 });
@@ -58,4 +66,5 @@ module.exports = {
   updateBid,
   getAllProducts,
   getPendingProducts,
+  editProduct,
 };

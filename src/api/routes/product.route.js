@@ -123,6 +123,65 @@ router.post('/', auth(UserRole.USER), validate(productValidation.sellProduct), p
 
 /**
  * @swagger
+ * /products/:
+ *   put:
+ *     tags: [Products]
+ *     security:
+ *          - Bearer: []
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *     - name: body
+ *       in: body
+ *       description: Edit products
+ *       required: true
+ *       schema:
+ *         type: object
+ *         required:
+ *           - productId
+ *           - categoryId
+ *           - type
+ *           - title
+ *           - description
+ *           - purchasedYear
+ *           - pickupAddress
+ *           - images
+ *         properties:
+ *           productId:
+ *             type: string
+ *           categoryId:
+ *             type: string
+ *           type:
+ *             type: string
+ *           title:
+ *             type: string
+ *           description:
+ *             type: string
+ *           brand:
+ *             type: string
+ *           purchasedYear:
+ *             type: string
+ *           distanceDriven:
+ *             type: string
+ *           pickupAddress:
+ *             type: string
+ *           images:
+ *             type: array
+ *             items:
+ *               type: object
+ *               properties:
+ *                 uri:
+ *                   type: string
+ *                 isDefault:
+ *                   type: boolean
+ *     responses:
+ *       200:
+ *         description: Return User
+ */
+router.put('/', auth(UserRole.USER), validate(productValidation.updateProduct), productController.editProduct);
+
+/**
+ * @swagger
  *  /products/categories:
  *   get:
  *     tags: [Products]

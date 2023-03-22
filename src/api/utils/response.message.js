@@ -12,6 +12,7 @@ module.exports = {
   PRODUCT_NOT_FOUND: 'Product not found',
   PRODUCT_NOT_ACCEPTED: 'You are not allowed to access this, Product bid is still in pending state',
   PRODUCT_NOT_PICKED: 'You can not make a payment, Product has not been picked yet.',
+  BIDDING_STARTED: 'You can not edit the product, Bidding has been started',
   PRODUCT_PAID: 'You have already paid for this product.',
   PICKED_UP_NOT_ESTIMATED: 'You can not picked up the order without estimating the pickup date.',
   BID_NOT_FOUND: 'Bid not found',
