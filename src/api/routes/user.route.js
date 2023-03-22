@@ -4,6 +4,7 @@ const { userController } = require('../controllers');
 const { validate, auth } = require('../middleware');
 const { UserRole } = require('../utils');
 const { userValidation, authValidation } = require('../validations');
+const { uploadMany } = require('../middleware');
 
 /**
  * @swagger
@@ -229,6 +230,27 @@ router.get('/products', auth(UserRole.USER), userController.getUserProducts);
  *         description: Return User
  */
 router.put('/fund', auth(UserRole.USER), validate(userValidation.updateFund), userController.updateFundDetails);
+
+/**
+ * @swagger
+ *  /users/image:
+ *   post:
+ *     tags: [Users]
+ *     security:
+ *          - Bearer: []
+ *     description: Upload files
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *     - name: files
+ *       in: formData
+ *       type: file
+ *       description: The file to upload.
+ *     responses:
+ *       200:
+ *         description: Return Message
+ */
+router.post('/image', auth(UserRole.USER, UserRole.ADMIN), uploadMany, userController.uploadImages);
 
 /**
  * @swagger

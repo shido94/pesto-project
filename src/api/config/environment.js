@@ -22,5 +22,9 @@ module.exports = (function () {
     RAZOR_PAY_USERNAME: process.env.RAZOR_PAY_USERNAME,
     RAZOR_PAY_PASSWORD: process.env.RAZOR_PAY_PASSWORD,
     RAZOR_PAY_ACCOUNT: process.env.RAZOR_PAY_ACCOUNT,
+    S3_ACCESS_KEY: process.env.S3_ACCESS_KEY,
+    S3_SECRET_KEY: process.env.S3_SECRET_KEY,
+    S3_REGION: process.env.S3_REGION,
+    S3_BUCKET_NAME: process.env.S3_BUCKET_NAME,
   };
 })();

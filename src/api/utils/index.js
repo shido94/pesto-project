@@ -1,11 +1,11 @@
-const apiError = require("./apiError");
-const catchAsync = require("./catchAsync");
-const constant = require("./constant");
-const logger = require("./logger");
-const pick = require("./pick");
-const responseMessage = require("./response.message");
-const swagger = require("./swagger");
-const { randomNumberGenerator, setTimeFactory } = require("./generator");
+const apiError = require('./apiError');
+const catchAsync = require('./catchAsync');
+const constant = require('./constant');
+const logger = require('./logger');
+const pick = require('./pick');
+const responseMessage = require('./response.message');
+const swagger = require('./swagger');
+const { randomNumberGenerator, setTimeFactory } = require('./generator');
 const {
   CategoryEnum,
   NotificationRecipientTypeEnum,
@@ -14,8 +14,10 @@ const {
   OrderStatus,
   UserRole,
   ExpiryUnit,
-} = require("./enum");
-const aggregationPaginate = require("./aggregation-paginate");
+} = require('./enum');
+const aggregationPaginate = require('./aggregation-paginate');
+const s3 = require('./s3');
+const multer = require('./multer');
 
 module.exports = {
   apiError,
@@ -35,4 +37,6 @@ module.exports = {
   setTimeFactory,
   ExpiryUnit,
   aggregationPaginate,
+  s3,
+  multer,
 };

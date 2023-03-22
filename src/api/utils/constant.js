@@ -31,4 +31,11 @@ module.exports = {
     BID_HISTORY: 'ProductBidHistory',
     PAYMENT: 'Payment',
   },
+  S3: {
+    ACCESS_KEY: config.S3_ACCESS_KEY,
+    SECRET_KEY: config.S3_SECRET_KEY,
+    REGION: config.S3_REGION,
+    BUCKET_NAME: config.S3_BUCKET_NAME,
+    LOCATION: 'https://sell-it-bucket.s3.ap-northeast-1.amazonaws.com',
+  },
 };

@@ -71,6 +71,23 @@ const updateFundDetails = catchAsync(async (req, res) => {
   return responseHandler.sendSuccess(res, httpStatus.OK, responseMessage.SUCCESS);
 });
 
+const uploadImages = catchAsync(async (req, res) => {
+  /** Add user to DB */
+
+  const files = req.files.map((file) => {
+    return {
+      fieldname: file.fieldname,
+      originalname: file.originalname,
+      mimetype: file.mimetype,
+      key: file.key,
+      contentType: file.contentType,
+      size: file.size,
+    };
+  });
+
+  return responseHandler.sendSuccess(res, httpStatus.OK, responseMessage.SUCCESS, { files });
+});
+
 module.exports = {
   getUsers,
   getUserProfile,
@@ -80,4 +97,5 @@ module.exports = {
   updateMobile,
   verifyAuthOtp,
   updateFundDetails,
+  uploadImages,
 };
