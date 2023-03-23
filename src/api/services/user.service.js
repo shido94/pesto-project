@@ -188,7 +188,10 @@ const getUserprofile = async (id) => {
     throw new apiError(httpStatus.NOT_FOUND, responseMessage.NO_USER_FOUND);
   }
 
-  return user;
+  const getTotalUserEarning = await paymentService.getTotalUserEarning(id);
+  console.log(getTotalUserEarning);
+
+  return { user, totalEarning: getTotalUserEarning };
 };
 
 /**

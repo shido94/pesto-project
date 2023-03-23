@@ -15,7 +15,6 @@ const ProductBidHistory = require('../models/product.bid.history.model');
 const { default: mongoose } = require('mongoose');
 const dayjs = require('dayjs');
 const paymentService = require('./payment.service');
-const { PAYMENT_STATUS } = require('../utils/enum');
 
 /**
  * Get Categories
@@ -271,7 +270,7 @@ const aggregateProducts = async (filter, options) => {
  * @param {Array} args
  * @returns {Promise<Product>}
  */
-const getUserProducts = async (userId, filter, options) => {
+const getUserProducts = async (userId, filter = {}, options = {}) => {
   logger.info('Inside getUserProducts');
   const query = getProductsQuery(filter);
 

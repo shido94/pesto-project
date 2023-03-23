@@ -27,9 +27,9 @@ const getUserProducts = catchAsync(async (req, res) => {
 
 const getUserProfile = catchAsync(async (req, res) => {
   /** Add user to DB */
-  const user = await userService.getUserprofile(req.user.sub);
+  const { user, totalEarning } = await userService.getUserprofile(req.user.sub);
 
-  return responseHandler.sendSuccess(res, httpStatus.OK, responseMessage.SUCCESS, { user });
+  return responseHandler.sendSuccess(res, httpStatus.OK, responseMessage.SUCCESS, { user, totalEarning });
 });
 
 const getUserByUserId = catchAsync(async (req, res) => {

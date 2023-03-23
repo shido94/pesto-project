@@ -1,8 +1,10 @@
 const axios = require('axios');
 const httpService = require('./http.service');
 const { constant, logger } = require('../utils');
-const { CUSTOMER_TYPE, RAZOR_PAY_API, ACCOUNT_TYPE } = require('../utils/enum');
+const { CUSTOMER_TYPE, RAZOR_PAY_API, ACCOUNT_TYPE, PAYMENT_STATUS } = require('../utils/enum');
 const resourceRepo = require('../dataRepositories/resourceRepo');
+const { Payment } = require('../models');
+const { ObjectId } = require('mongodb');
 
 /**
  * Add Customer
@@ -95,7 +97,7 @@ const createPayment = async (paidBy, product) => {
       productId: product._id,
       payoutId: payout.id,
       amount: payout.amount / 100, // Convert paisa in rupees
-      status: payout.status,
+      status: PAYMENT_STATUS.PROCESSED,
     };
 
     /** update otp data */
@@ -137,9 +139,33 @@ const payoutToUser = async (user, product) => {
   }
 };
 
+const getTotalUserEarning = async (userId) => {
+  logger.info('Inside getTotalUserEarning');
+
+  const payments = await Payment.aggregate([
+    {
+      $match: {
+        paidTo: ObjectId(userId),
+        status: PAYMENT_STATUS.PROCESSED,
+      },
+    },
+    {
+      $group: {
+        _id: null,
+        total: {
+          $sum: '$amount',
+        },
+      },
+    },
+  ]);
+
+  return payments.length ? payments[0].total : 0;
+};
+
 module.exports = {
   addCustomer,
   updateCustomer,
   addUserFundAccount,
   createPayment,
+  getTotalUserEarning,
 };
