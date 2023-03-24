@@ -67,6 +67,7 @@ router.get('/profile', auth(UserRole.USER, UserRole.ADMIN), userController.getUs
  *         required:
  *           - name
  *           - email
+ *           - identityProofType
  *           - identityProofNumber
  *           - identityProofImageUri
  *           - addressLine1
@@ -79,6 +80,9 @@ router.get('/profile', auth(UserRole.USER, UserRole.ADMIN), userController.getUs
  *             type: string
  *           email:
  *             type: string
+ *           identityProofType:
+ *             type: number
+ *             default: 1
  *           identityProofNumber:
  *             type: string
  *           identityProofImageUri:
