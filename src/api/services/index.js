@@ -5,6 +5,7 @@ const productService = require('./product.service');
 const adminService = require('./admin.service');
 const httpService = require('./http.service');
 const paymentService = require('./payment.service');
+const notificationService = require('./notification.service');
 
 module.exports = {
   userService,
@@ -14,4 +15,5 @@ module.exports = {
   adminService,
   httpService,
   paymentService,
+  notificationService,
 };

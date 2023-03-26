@@ -35,4 +35,6 @@ module.exports = {
   OTP_SENT: 'Otp has been sent to your registered number',
   BLOCKED: 'Your account has been blocked, Please contact to admin',
   MOBILE_EXIST: 'This mobile number is already registered with different user',
+  NOTIFICATION_DELETE: 'Notification has been deleted',
+  NOTIFICATIONS_DELETE: 'Notifications have been deleted',
 };

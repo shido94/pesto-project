@@ -7,7 +7,7 @@ const productSchema = Schema(
   {
     categoryId: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: 'Category',
       required: true,
     },
     type: {
@@ -36,6 +36,10 @@ const productSchema = Schema(
     },
     acceptedAmount: {
       type: String,
+    },
+    priceAcceptedBy: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
     },
     orderStatus: {
       type: Number,

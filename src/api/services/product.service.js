@@ -10,11 +10,12 @@ const {
 const resourceRepo = require('../dataRepositories/resourceRepo');
 const httpStatus = require('http-status');
 const { ObjectId } = require('mongodb');
-const { Product } = require('../models');
+const { Product, Category } = require('../models');
 const ProductBidHistory = require('../models/product.bid.history.model');
 const { default: mongoose } = require('mongoose');
 const dayjs = require('dayjs');
 const paymentService = require('./payment.service');
+const notificationService = require('./notification.service');
 
 /**
  * Get Categories
@@ -112,7 +113,8 @@ const addSellRequest = async (body, user) => {
   };
 
   /** Add new  product request */
-  await resourceRepo.create(constant.COLLECTIONS.PRODUCT, { data });
+  const product = await resourceRepo.create(constant.COLLECTIONS.PRODUCT, { data });
+  notificationService.sendAddProductNotification(user.sub, product);
 };
 
 /**
@@ -136,7 +138,7 @@ const editProduct = async (body, user) => {
   }
 
   const query = {
-    productId: body.productId,
+    _id: ObjectId(body.productId),
   };
 
   const data = {
@@ -490,11 +492,35 @@ const responderLookupQuery = () => {
  * Get user email
  * @returns {Promise<ProductBidHistory>}
  */
-const getBidById = async (id) => {
-  const query = {
-    _id: ObjectId(id),
-  };
-  return resourceRepo.findOne(constant.COLLECTIONS.BID_HISTORY, { query });
+const getBidDetailById = async (id) => {
+  const query = [];
+
+  /**
+   * Query
+   */
+  query.push({
+    $match: { _id: ObjectId(id) },
+  });
+
+  /**
+   * Lookup editor
+   */
+  query.push(bidderLookupQuery());
+  query.push({ $unwind: '$bidCreator' });
+
+  /**
+   * Lookup responder
+   */
+  query.push(responderLookupQuery());
+  query.push({
+    $unwind: {
+      path: '$responder',
+      preserveNullAndEmptyArrays: true,
+    },
+  });
+
+  const bid = await ProductBidHistory.aggregate(query);
+  return bid.length ? bid[0] : {};
 };
 
 /**
@@ -533,7 +559,7 @@ const updateResponseOnBid = async (user, body, session) => {
  * @returns {null}
  */
 const updateBid = async (user, body) => {
-  const bid = await getBidById(body.bidId);
+  const bid = await getBidDetailById(body.bidId);
 
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -546,19 +572,27 @@ const updateBid = async (user, body) => {
       throw new apiError(httpStatus.NOT_FOUND, responseMessage.BID_NOT_FOUND);
     }
 
+    if (String(bid.bidCreatedBy) === user.sub || ![ProductBidStatus.CREATED].includes(bid.bidStatus)) {
+      logger.info('Invalid user => ', user.sub);
+      throw new apiError(httpStatus.FORBIDDEN, responseMessage.BID_NOT_ALLOWED);
+    }
+
     if (body.status === ProductBidStatus.MODIFIED) {
       body.productId = bid.productId;
       isTransactionStarted = true;
       await modifiedBid(user, body, session);
     } else {
-      if (String(bid.bidCreatedBy) === user.sub || ![ProductBidStatus.CREATED].includes(bid.bidStatus)) {
-        logger.info('Invalid user => ', user.sub);
-        throw new apiError(httpStatus.FORBIDDEN, responseMessage.BID_NOT_ALLOWED);
-      }
-
       isTransactionStarted = true;
       /** Update response on bid */
       await updateResponseOnBid(user, body, session);
+      const product = await getProductById(bid.productId);
+      let priceAcceptedBy = '';
+
+      if (product.createdBy.toString() === user.sub.toString()) {
+        priceAcceptedBy = bid.bidCreatedBy;
+      } else {
+        priceAcceptedBy = user.sub;
+      }
 
       /** Update status on product */
       await await resourceRepo.updateOne(constant.COLLECTIONS.PRODUCT, {
@@ -566,6 +600,7 @@ const updateBid = async (user, body) => {
         data: {
           acceptedAmount: bid.newValue,
           bidStatus: body.status,
+          priceAcceptedBy,
         },
         options: { session },
       });
@@ -573,6 +608,7 @@ const updateBid = async (user, body) => {
 
     await session.commitTransaction();
     session.endSession();
+    notificationService.sendBidUpdatesNotification(user.sub, bid, body.status);
   } catch (error) {
     // If an error occurred, abort the whole transaction and
     // undo any changes that might have happened
@@ -587,10 +623,11 @@ const updateBid = async (user, body) => {
 
 /**
  * Update Pickup Date
+ * @param {Object} userId
  * @param {Object} body
  * @returns null
  */
-const updatePickUpDate = async (body) => {
+const updatePickUpDate = async (userId, body) => {
   const product = await getProductById(body.productId);
 
   /** Check if product exist */
@@ -601,7 +638,7 @@ const updatePickUpDate = async (body) => {
 
   /** Check if product amount has been accepted */
   if (product.bidStatus !== ProductBidStatus.ACCEPTED) {
-    logger.error('Invalid product id => ', id);
+    logger.error(responseMessage.PRODUCT_NOT_ACCEPTED, id);
     throw new apiError(httpStatus.NOT_FOUND, responseMessage.PRODUCT_NOT_ACCEPTED);
   }
 
@@ -621,6 +658,8 @@ const updatePickUpDate = async (body) => {
   };
 
   await resourceRepo.updateOne(constant.COLLECTIONS.PRODUCT, { query, data });
+
+  // notificationService.orderUpdatesNotification(userId, product, OrderStatus.PICKED_UP_DATE_ESTIMATED);
 };
 
 /**
@@ -628,7 +667,7 @@ const updatePickUpDate = async (body) => {
  * @param {Object} body
  * @returns null
  */
-const orderPickedUp = async (body) => {
+const orderPickedUp = async (userId, body) => {
   const product = await getProductById(body.productId);
 
   /** Check if product exist */
@@ -658,6 +697,7 @@ const orderPickedUp = async (body) => {
   };
 
   await resourceRepo.updateOne(constant.COLLECTIONS.PRODUCT, { query, data });
+  // notificationService.orderUpdatesNotification(userId, bid, body.status);
 };
 
 /**

@@ -260,6 +260,86 @@ router.post('/image', auth(UserRole.USER, UserRole.ADMIN), uploadMany, userContr
 
 /**
  * @swagger
+ * /users/notifications:
+ *   get:
+ *     tags:
+ *       - Users
+ *     security:
+ *          - Bearer: []
+ *     description: Get Notifications Listing
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *     - name: limit
+ *       in: query
+ *     - name: page
+ *       in: query
+ *     responses:
+ *       200:
+ *         description: return obj
+ */
+router.get('/notifications', auth(UserRole.USER, UserRole.ADMIN), userController.getNotifications);
+
+/**
+ * @swagger
+ * /users/notifications/unread/count:
+ *   get:
+ *     tags:
+ *       - Users
+ *     security:
+ *          - Bearer: []
+ *     description: Get Unread Notifications Count
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: return obj
+ */
+router.get(
+  '/notifications/unread/count',
+  auth(UserRole.USER, UserRole.ADMIN),
+  userController.getUnreadNotificationCount,
+);
+
+/**
+ * @swagger
+ * /users/notifications:
+ *   delete:
+ *     tags:
+ *       - Users
+ *     security:
+ *          - Bearer: []
+ *     description: Delete Notifications
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: return obj
+ */
+router.delete('/notifications/', auth(UserRole.USER, UserRole.ADMIN), userController.deleteAllNotification);
+
+/**
+ * @swagger
+ * /users/notifications/{id}:
+ *   delete:
+ *     tags:
+ *       - Users
+ *     security:
+ *          - Bearer: []
+ *     description: Delete Notifications
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *     - name: id
+ *       in: path
+ *     responses:
+ *       200:
+ *         description: return obj
+ */
+router.delete('/notifications/:id', auth(UserRole.USER, UserRole.ADMIN), userController.deleteNotification);
+
+/**
+ * @swagger
  *  /users/{id}:
  *   get:
  *     tags: [Users]

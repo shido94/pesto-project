@@ -2,57 +2,59 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 const { toJSON, paginate } = require('./plugins');
 const aggregatePaginate = require('mongoose-aggregate-paginate-v2');
+const { DEVICE_TYPE, NOTIFICATION_TYPE } = require('../utils/enum');
 
 const notificationSchema = Schema(
-	{
-		senderId: {
-			type: Schema.Types.ObjectId,
-			ref: 'User',
-		},
-		receiverIds: [
-			{
-				type: Schema.Types.ObjectId,
-				ref: 'User',
-			},
-		],
-		typeEnum: {
-			type: Number,
-			// payment, request, query
-		},
-		recipientTypeEnum: {
-			type: Number,
-		}, // web, android, ios
-		title: {
-			type: String,
-		},
-		description: {
-			type: String,
-		},
-		body: {
-			type: Object,
-			default: {},
-		},
-		productId: {
-			type: Schema.Types.ObjectId,
-			ref: 'Product',
-		},
-		readBy: [
-			{
-				type: Schema.Types.ObjectId,
-				ref: 'User',
-			},
-		],
-		deletedBy: [
-			{
-				type: Schema.Types.ObjectId,
-				ref: 'User',
-				private: true, // used by the toJSON plugin
-			},
-		],
-	},
-	{
-		timestamps: true,
-	}
+  {
+    senderId: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+    },
+    receiverIds: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+      },
+    ],
+    type: {
+      type: Number,
+      enum: [NOTIFICATION_TYPE.BID, NOTIFICATION_TYPE.ORDER],
+    },
+    recipientType: {
+      type: Number,
+      enum: [DEVICE_TYPE.WEB, DEVICE_TYPE.ANDROID, DEVICE_TYPE.IOS],
+    },
+    title: {
+      type: String,
+    },
+    description: {
+      type: String,
+    },
+    body: {
+      type: Object,
+      default: {},
+    },
+    productId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Product',
+    },
+    readBy: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+      },
+    ],
+    deletedBy: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+        private: true, // used by the toJSON plugin
+      },
+    ],
+  },
+  {
+    timestamps: true,
+  },
 );
 
 // add plugin that converts mongoose to json

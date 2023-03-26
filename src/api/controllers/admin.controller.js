@@ -48,7 +48,7 @@ const updatePickUpDate = catchAsync(async (req, res) => {
   /** Add user to DB */
   const body = pick(req.body, ['productId', 'estimatedPickedUpDate']);
 
-  await productService.updatePickUpDate(body);
+  await productService.updatePickUpDate(req.user.sub, body);
 
   return responseHandler.sendSuccess(res, httpStatus.OK, responseMessage.SUCCESS, {});
 });
@@ -57,7 +57,7 @@ const updatePickUp = catchAsync(async (req, res) => {
   /** Add user to DB */
   const body = pick(req.body, ['productId']);
 
-  await productService.orderPickedUp(body);
+  await productService.orderPickedUp(req.user.sub, body);
 
   return responseHandler.sendSuccess(res, httpStatus.OK, responseMessage.SUCCESS, {});
 });

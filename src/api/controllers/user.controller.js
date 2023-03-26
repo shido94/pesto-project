@@ -1,6 +1,6 @@
 const httpStatus = require('http-status');
 const { pick, catchAsync, responseMessage, UserRole, logger } = require('../utils');
-const { userService, productService } = require('../services');
+const { userService, productService, notificationService } = require('../services');
 const { responseHandler } = require('../handlers');
 
 const getUsers = catchAsync(async (req, res) => {
@@ -88,6 +88,42 @@ const uploadImages = catchAsync(async (req, res) => {
   return responseHandler.sendSuccess(res, httpStatus.OK, responseMessage.SUCCESS, { files });
 });
 
+const getNotifications = catchAsync(async (req, res) => {
+  logger.debug('Inside getNotifications');
+  const filter = { userId: req.user.sub };
+  const options = pick(req.query, ['limit', 'page', 'sortBy']);
+
+  await notificationService.readAllNotification(req.user.sub);
+
+  const notifications = await notificationService.aggregateUserNotification(filter, options);
+  return responseHandler.sendSuccess(res, httpStatus.OK, notifications);
+});
+
+const getUnreadNotificationCount = catchAsync(async (req, res) => {
+  logger.debug('Inside getUnreadNotificationCount');
+
+  const unreadCount = await notificationService.unreadNotificationCount(req.user.sub);
+  return responseHandler.sendSuccess(res, httpStatus.OK, { unreadCount });
+});
+
+const deleteNotification = catchAsync(async (req, res) => {
+  logger.debug('Inside deleteNotification');
+
+  await notificationService.deleteNotification(req.user.sub, req.params.id);
+  return responseHandler.sendSuccess(res, httpStatus.OK, {}, responseMessage.NOTIFICATION_DELETE);
+});
+
+const deleteAllNotification = catchAsync(async (req, res) => {
+  logger.debug('Inside deleteNotification');
+
+  const data = await notificationService.deleteNotification(req.user.sub);
+
+  logger.info('All Notification has been deleted');
+  logger.debug(data);
+
+  return responseHandler.sendSuccess(res, httpStatus.OK, {}, responseMessage.NOTIFICATIONS_DELETE);
+});
+
 module.exports = {
   getUsers,
   getUserProfile,
@@ -98,4 +134,8 @@ module.exports = {
   verifyAuthOtp,
   updateFundDetails,
   uploadImages,
+  getNotifications,
+  getUnreadNotificationCount,
+  deleteNotification,
+  deleteAllNotification,
 };

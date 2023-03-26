@@ -30,7 +30,11 @@ module.exports = {
     PRODUCT: 'Product',
     BID_HISTORY: 'ProductBidHistory',
     PAYMENT: 'Payment',
+    NOTIFICATION: 'Notification',
   },
+  BID: 'Bid',
+  ORDER: 'Order',
+  PAYMENT: 'payment',
   S3: {
     ACCESS_KEY: config.S3_ACCESS_KEY,
     SECRET_KEY: config.S3_SECRET_KEY,

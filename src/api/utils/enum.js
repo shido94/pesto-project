@@ -75,6 +75,17 @@ const PAYMENT_STATUS = {
   REVERSED: 'reversed',
 };
 
+const DEVICE_TYPE = {
+  WEB: 1,
+  ANDROID: 2,
+  IOS: 3,
+};
+
+const NOTIFICATION_TYPE = {
+  BID: 1,
+  ORDER: 2,
+};
+
 module.exports = {
   CategoryEnum,
   NotificationRecipientTypeEnum,
@@ -88,4 +99,6 @@ module.exports = {
   ACCOUNT_TYPE,
   IDENTITY_PROOF,
   PAYMENT_STATUS,
+  DEVICE_TYPE,
+  NOTIFICATION_TYPE,
 };

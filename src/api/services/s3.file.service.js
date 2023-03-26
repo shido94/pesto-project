@@ -18,7 +18,7 @@ const uploadFile = async ({ path, data }) => {
         resolve(file);
       }
     } catch (err) {
-      Logger.error('Error inside uploadFile', err);
+      logger.error('Error inside uploadFile', err);
       reject(err);
     }
   });
@@ -32,11 +32,11 @@ const deleteFile = async function (file) {
 
     if (found) {
       await s3.deleteObject(params).promise();
-      Logger.debug('file deleted Successfully');
+      logger.debug('file deleted Successfully');
       return;
     }
   } catch (error) {
-    Logger.error('Image not found in aws', error);
+    logger.error('Image not found in aws', error);
     return;
   }
 };
@@ -46,11 +46,11 @@ const getFile = async function (file) {
     const params = { Bucket: config.BUCKET_NAME, Key: file };
 
     const found = await s3.getObject(params).promise();
-    Logger.debug('file fetched Successfully');
+    logger.debug('file fetched Successfully');
 
     return found;
   } catch (error) {
-    Logger.error('Image not found in aws', error);
+    logger.error('Image not found in aws', error);
     return;
   }
 };
