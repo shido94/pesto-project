@@ -26,7 +26,6 @@ const userSchema = Schema(
     },
     tempMobile: {
       type: String,
-      unique: true,
     },
     profileUri: {
       type: String,

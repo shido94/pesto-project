@@ -2,6 +2,9 @@ const CategoryEnum = {
   FURNITURE: 1,
   ELECTRONICS: 2,
   VEHICLES: 3,
+  BOOKS: 4,
+  FASHION: 5,
+  OTHER: 6,
 };
 
 const UserRole = {

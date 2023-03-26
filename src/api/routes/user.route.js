@@ -184,6 +184,8 @@ router.post('/verify-mobile-otp', validate(authValidation.verifyAuthOtp), userCo
  *       in: query
  *     - name: bidStatus
  *       in: query
+ *     - name: orderStatus
+ *       in: query
  *     - name: minPrice
  *       in: query
  *     - name: maxPrice

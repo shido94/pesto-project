@@ -49,6 +49,8 @@ router.get('/pending', auth(UserRole.ADMIN), productController.getPendingProduct
  *       in: query
  *     - name: bidStatus
  *       in: query
+ *     - name: orderStatus
+ *       in: query
  *     - name: minPrice
  *       in: query
  *     - name: maxPrice
