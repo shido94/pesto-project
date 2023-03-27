@@ -348,7 +348,11 @@ const createNewBid = async (user, body) => {
     throw new apiError(httpStatus.BAD_REQUEST, responseMessage.INVALID_PRODUCT);
   }
 
-  return await addBid(body, user);
+  await addBid(body, user);
+
+  const product = await getProductById(body.productId);
+
+  notificationService.sendBidCreateNotification(user.sub, product);
 };
 
 /**
@@ -659,7 +663,7 @@ const updatePickUpDate = async (userId, body) => {
 
   await resourceRepo.updateOne(constant.COLLECTIONS.PRODUCT, { query, data });
 
-  // notificationService.orderUpdatesNotification(userId, product, OrderStatus.PICKED_UP_DATE_ESTIMATED);
+  notificationService.orderUpdatesNotification(userId, product, OrderStatus.PICKED_UP_DATE_ESTIMATED);
 };
 
 /**
@@ -697,7 +701,7 @@ const orderPickedUp = async (userId, body) => {
   };
 
   await resourceRepo.updateOne(constant.COLLECTIONS.PRODUCT, { query, data });
-  // notificationService.orderUpdatesNotification(userId, bid, body.status);
+  notificationService.orderUpdatesNotification(userId, product, OrderStatus.PICKED_UP);
 };
 
 /**
@@ -743,6 +747,8 @@ const makePayoutToUser = async (paidBy, body) => {
   };
 
   await resourceRepo.updateOne(constant.COLLECTIONS.PRODUCT, { query, data });
+
+  notificationService.orderUpdatesNotification(userId, product, OrderStatus.PAID);
 };
 
 module.exports = {
@@ -758,4 +764,5 @@ module.exports = {
   orderPickedUp,
   makePayoutToUser,
   editProduct,
+  getProductById,
 };

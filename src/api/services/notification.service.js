@@ -373,6 +373,29 @@ const sendAddProductNotification = async (senderId, data) => {
 /**
  * Save add product notification
  * @param {string} senderId
+ * @param {Object} product
+ * @returns {Promise}
+ */
+const sendBidCreateNotification = async (senderId, product) => {
+  const sender = await userService.getUserById(ObjectId(senderId));
+
+  const notificationData = {
+    senderId: senderId,
+    receiverIds: [product.createdBy],
+    type: NOTIFICATION_TYPE.BID,
+    title: constant.BID,
+    description: `${sender.name} has accepted your request and offered you the price.`,
+    recipientType: DEVICE_TYPE.WEB,
+    productId: product._id,
+  };
+
+  await createNotification(notificationData);
+  logger.info('Updates bid Notification Saved');
+};
+
+/**
+ * Save add product notification
+ * @param {string} senderId
  * @param {Object} bid
  * @param {Object} status
  * @returns {Promise}
@@ -398,7 +421,7 @@ const sendBidUpdatesNotification = async (senderId, bid, status) => {
     title: constant.BID,
     description: description,
     recipientType: DEVICE_TYPE.WEB,
-    productId: data._id,
+    productId: bid.productId,
   };
 
   await createNotification(notificationData);
@@ -412,28 +435,30 @@ const sendBidUpdatesNotification = async (senderId, bid, status) => {
  * @param {Object} status
  * @returns {Promise}
  */
-const orderUpdatesNotification = async (senderId, bid, status) => {
+const orderUpdatesNotification = async (senderId, product, status) => {
   let description = '';
   const sender = await userService.getUserById(ObjectId(senderId));
+  let title = constant.ORDER;
 
   if (status === OrderStatus.PICKED_UP_DATE_ESTIMATED) {
-    description = `${sender.name} has offered the new price for the product.`;
+    description = `${sender.name} has updated the pick-up date.`;
   }
   if (status === OrderStatus.PICKED_UP) {
-    description = `${sender.name} has accepted the price offered by you.`;
+    description = `${sender.name} has picked your order.`;
   }
   if (status === OrderStatus.PAID) {
     description = `${sender.name} has rejected the price offered by you.`;
+    title = constant.PAYMENT;
   }
 
   const notificationData = {
     senderId: senderId,
     receiverIds: [bid.bidCreatedBy],
     type: NOTIFICATION_TYPE.BID,
-    title: constant.ORDER,
+    title: title,
     description: description,
     recipientType: DEVICE_TYPE.WEB,
-    productId: data._id,
+    productId: product._id,
   };
 
   await createNotification(notificationData);
@@ -451,4 +476,5 @@ module.exports = {
   sendAddProductNotification,
   sendBidUpdatesNotification,
   orderUpdatesNotification,
+  sendBidCreateNotification,
 };
