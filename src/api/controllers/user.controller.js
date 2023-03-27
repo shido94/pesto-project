@@ -58,7 +58,7 @@ const updateMobile = catchAsync(async (req, res) => {
 
 const verifyAuthOtp = catchAsync(async (req, res) => {
   /** Verify otp */
-  await userService.verifyUpdateMobileOtp(req.body);
+  await userService.verifyUpdateMobileOtp(req.user.sub, req.body.otp);
   logger.info('User created');
 
   return responseHandler.sendSuccess(res, httpStatus.OK, responseMessage.SUCCESS);

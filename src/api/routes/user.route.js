@@ -146,6 +146,8 @@ router.put('/mobile', auth(UserRole.USER), validate(userValidation.updateMobile)
  *       - Users
  *     produces:
  *       - application/json
+ *     security:
+ *          - Bearer: []
  *     parameters:
  *     - name: body
  *       in: body
@@ -154,12 +156,8 @@ router.put('/mobile', auth(UserRole.USER), validate(userValidation.updateMobile)
  *       schema:
  *         type: object
  *         required:
- *           - userId
  *           - otp
  *         properties:
- *           userId:
- *             type: string
- *             default: 63fcf605a381eaf81ee9cbba
  *           otp:
  *             type: string
  *             default: 1234

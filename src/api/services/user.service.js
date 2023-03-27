@@ -281,10 +281,11 @@ const updateUserMobile = async (userId, body) => {
 
 /**
  * Verify update mobile otp
- * @param {Object} body
+ * @param {String} userId
+ * @param {String} otp
  * @returns true/false
  */
-const verifyUpdateMobileOtp = async ({ userId, otp }) => {
+const verifyUpdateMobileOtp = async (userId, otp) => {
   logger.debug('Inside verifyUpdateMobileOtp');
   try {
     const user = await getUserById(userId);

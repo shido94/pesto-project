@@ -70,9 +70,6 @@ const signup = {
 const verifyAuthOtp = {
   body: Joi.object()
     .keys({
-      userId: Joi.string().trim().required().messages({
-        'any.required': 'Id is missing',
-      }),
       otp: Joi.string().trim().required().messages({
         'any.required': 'Otp is missing',
       }),
