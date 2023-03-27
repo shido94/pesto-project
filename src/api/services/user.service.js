@@ -189,7 +189,6 @@ const getUserprofile = async (id) => {
   }
 
   const getTotalUserEarning = await paymentService.getTotalUserEarning(id);
-  console.log(getTotalUserEarning);
 
   return { user, totalEarning: getTotalUserEarning };
 };

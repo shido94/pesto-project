@@ -210,6 +210,7 @@ const removeUserFromNotificationReceiversArray = (id, userId) => {
 
     const data = {
       $push: { deletedBy: userId },
+      $pull: { receiverIds: userId },
     };
 
     return resourceRepo.updateOne(constant.COLLECTIONS.NOTIFICATION, {
@@ -217,7 +218,7 @@ const removeUserFromNotificationReceiversArray = (id, userId) => {
       data,
     });
   } catch (error) {
-    logger.info('removeUserFromReceiversArray error ', error);
+    logger.info('removeUserFromNotificationReceiversArray error ', error);
     throw new apiError(httpStatus.INTERNAL_SERVER_ERROR, 'Something went wrong, Please try again');
   }
 };
@@ -235,6 +236,7 @@ const removeUserFromAllReceiversArray = (userId) => {
 
     const data = {
       $push: { deletedBy: userId },
+      $pull: { receiverIds: userId },
     };
 
     return resourceRepo.updateMany(constant.COLLECTIONS.NOTIFICATION, {
@@ -257,12 +259,31 @@ const deleteNotification = async (userId, notificationId) => {
   try {
     logger.info('Deleting user notification');
     if (!notificationId) {
-      return await removeUserFromAllReceiversArray(ObjectId(userId));
+      await removeUserFromAllReceiversArray(ObjectId(userId));
     } else {
-      return await removeUserFromNotificationReceiversArray(ObjectId(notificationId), ObjectId(userId));
+      await removeUserFromNotificationReceiversArray(ObjectId(notificationId), ObjectId(userId));
     }
+
+    deleteNotificationFromDB();
   } catch (error) {
     logger.info('deleteNotification error ', error);
+    throw new apiError(httpStatus.INTERNAL_SERVER_ERROR, 'Something went wrong, Please try again');
+  }
+};
+
+const deleteNotificationFromDB = async () => {
+  logger.info('Inside deleteNotificationFromDB');
+
+  try {
+    const query = {
+      receiverIds: { $exists: true, $eq: [] },
+    };
+
+    return resourceRepo.remove(constant.COLLECTIONS.NOTIFICATION, {
+      query,
+    });
+  } catch (error) {
+    logger.info('deleteNotificationFromDB error ', error);
     throw new apiError(httpStatus.INTERNAL_SERVER_ERROR, 'Something went wrong, Please try again');
   }
 };

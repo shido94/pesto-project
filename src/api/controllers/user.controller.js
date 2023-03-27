@@ -103,7 +103,7 @@ const getUnreadNotificationCount = catchAsync(async (req, res) => {
   logger.debug('Inside getUnreadNotificationCount');
 
   const unreadCount = await notificationService.unreadNotificationCount(req.user.sub);
-  return responseHandler.sendSuccess(res, httpStatus.OK, { unreadCount });
+  return responseHandler.sendSuccess(res, httpStatus.OK, '', { unreadCount });
 });
 
 const deleteNotification = catchAsync(async (req, res) => {
