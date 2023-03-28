@@ -67,7 +67,7 @@ router.get('/json', (req, res) => {
   res.send(swaggerSpec);
 });
 
-if (environment.ENV !== 'production') {
+if (!environment.ENV || environment.ENV !== 'production') {
   router.use('/', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 }
 
