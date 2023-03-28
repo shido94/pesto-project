@@ -16,6 +16,7 @@ const ProductBidHistory = require('../models/product.bid.history.model');
 const { default: mongoose } = require('mongoose');
 const dayjs = require('dayjs');
 const paymentService = require('./payment.service');
+const { getUserById } = require('./user.service');
 
 /**
  * Get Categories
@@ -760,6 +761,13 @@ const makePayoutToUser = async (paidBy, body) => {
     throw new apiError(httpStatus.FORBIDDEN, responseMessage.PRODUCT_NOT_PICKED);
   }
 
+  const user = await getUserById(paidBy);
+
+  if (!user || !user.bankAccountNumber || !user.UPI) {
+    logger.error(`Funds account pending`);
+    throw new apiError(httpStatus.FORBIDDEN, responseMessage.BANK_DETAIL_MISSING);
+  }
+
   const payment = await paymentService.createPayment(paidBy, product);
 
   const query = {
@@ -771,7 +779,7 @@ const makePayoutToUser = async (paidBy, body) => {
 
   await resourceRepo.updateOne(constant.COLLECTIONS.PRODUCT, { query, data });
 
-  await eventEmitter.emit('orderUpdatesNotification', userId, product, OrderStatus.PAID);
+  await eventEmitter.emit('orderUpdatesNotification', paidBy, product, OrderStatus.PAID);
 };
 
 module.exports = {
