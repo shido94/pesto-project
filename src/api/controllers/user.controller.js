@@ -17,7 +17,7 @@ const getUsers = catchAsync(async (req, res) => {
 
 const getUserProducts = catchAsync(async (req, res) => {
   logger.info('Inside getUserProducts');
-  const filter = pick(req.query, ['category', 'bidStatus', 'minPrice', 'maxPrice']);
+  const filter = pick(req.query, ['category', 'bidStatus', 'orderStatus', 'minPrice', 'maxPrice']);
   const options = pick(req.query, ['limit', 'page', 'sort']);
 
   const products = await productService.getUserProducts(req.user.sub, filter, options);

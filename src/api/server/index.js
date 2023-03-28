@@ -11,7 +11,6 @@ const apiError = require('../utils/apiError');
 const { error } = require('../middleware');
 const httpStatus = require('http-status');
 const helmet = require('helmet');
-require('../../../db/index');
 
 /**
  * Assign the express server to app

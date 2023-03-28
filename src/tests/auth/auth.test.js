@@ -3,6 +3,7 @@ const app = require('../../api/server/index');
 const setupTestDB = require('../utils/testDb');
 const { faker } = require('@faker-js/faker/locale/de');
 const httpStatus = require('http-status');
+const { getUserByEmailOrMobile } = require('../../api/services/user.service');
 
 const apiPath = '/api/v1';
 
@@ -38,6 +39,16 @@ describe('Auth Routes', () => {
         ifscCode: 'HDFC0000053',
         accountHolderName: 'Gaurav Kumar',
       };
+    });
+
+    test('Add user if data is valid', async () => {
+      const user = await getUserByEmailOrMobile(newUser.email, newUser.mobile);
+
+      if (!user) {
+        await request(app).post(AuthUrl.SIGNUP).send(newUser).expect(httpStatus.BAD_REQUEST);
+      } else {
+        expect(user).toBe(null);
+      }
     });
 
     test('Should return 400 if email is not valid', async () => {

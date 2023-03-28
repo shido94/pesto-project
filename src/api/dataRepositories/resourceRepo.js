@@ -16,19 +16,6 @@ class ResourceRepo {
     });
   }
 
-  findById(collection, queryObject) {
-    return new Promise((resolve, reject) => {
-      dbRepo
-        .findById(collection, queryObject)
-        .then(function (data) {
-          resolve(data);
-        })
-        .catch((err) => {
-          reject(err);
-        });
-    });
-  }
-
   find(collection, queryObject) {
     return new Promise((resolve, reject) => {
       dbRepo
@@ -59,19 +46,6 @@ class ResourceRepo {
     return new Promise((resolve, reject) => {
       dbRepo
         .create(collection, queryObject)
-        .then(function (data) {
-          resolve(data);
-        })
-        .catch((err) => {
-          reject(err);
-        });
-    });
-  }
-
-  createMany(collection, queryObject) {
-    return new Promise((resolve, reject) => {
-      dbRepo
-        .createMany(collection, queryObject)
         .then(function (data) {
           resolve(data);
         })

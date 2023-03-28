@@ -6,6 +6,7 @@ const {
   aggregationPaginate,
   ProductBidStatus,
   OrderStatus,
+  eventEmitter,
 } = require('../utils');
 const resourceRepo = require('../dataRepositories/resourceRepo');
 const httpStatus = require('http-status');
@@ -15,7 +16,6 @@ const ProductBidHistory = require('../models/product.bid.history.model');
 const { default: mongoose } = require('mongoose');
 const dayjs = require('dayjs');
 const paymentService = require('./payment.service');
-const notificationService = require('./notification.service');
 
 /**
  * Get Categories
@@ -30,10 +30,15 @@ const getCategories = async () => {
  * @returns {Promise<Category>}
  */
 const getCategoryById = async (id) => {
-  const query = {
-    _id: ObjectId(id),
-  };
-  return resourceRepo.findOne(constant.COLLECTIONS.CATEGORY, { query });
+  try {
+    const query = {
+      _id: ObjectId(id),
+    };
+
+    return resourceRepo.findOne(constant.COLLECTIONS.CATEGORY, { query });
+  } catch (error) {
+    throw new apiError(httpStatus.BAD_REQUEST, responseMessage.INVALID_CATEGORY);
+  }
 };
 
 /**
@@ -43,6 +48,18 @@ const getCategoryById = async (id) => {
 const getProductById = async (id) => {
   const query = {
     _id: ObjectId(id),
+  };
+  return resourceRepo.findOne(constant.COLLECTIONS.PRODUCT, { query });
+};
+
+/**
+ * Get product by id
+ * @returns {Promise<Product>}
+ */
+const getUserProductById = async (productId, userId) => {
+  const query = {
+    _id: ObjectId(productId),
+    createdBy: ObjectId(userId),
   };
   return resourceRepo.findOne(constant.COLLECTIONS.PRODUCT, { query });
 };
@@ -114,7 +131,8 @@ const addSellRequest = async (body, user) => {
 
   /** Add new  product request */
   const product = await resourceRepo.create(constant.COLLECTIONS.PRODUCT, { data });
-  notificationService.sendAddProductNotification(user.sub, product);
+
+  await eventEmitter.emit('sendAddProductNotification', user.sub, product);
 };
 
 /**
@@ -167,6 +185,9 @@ function getProductsQuery(args) {
   }
   if (args.bidStatus) {
     filter.bidStatus = +args.bidStatus;
+  }
+  if (args.orderStatus) {
+    filter.orderStatus = +args.orderStatus;
   }
   if (args.minPrice > -1 && args.maxPrice > args.minPrice) {
     filter.acceptedAmount = {
@@ -352,7 +373,7 @@ const createNewBid = async (user, body) => {
 
   const product = await getProductById(body.productId);
 
-  notificationService.sendBidCreateNotification(user.sub, product);
+  await eventEmitter.emit('sendBidCreateNotification', user.sub, product);
 };
 
 /**
@@ -612,7 +633,8 @@ const updateBid = async (user, body) => {
 
     await session.commitTransaction();
     session.endSession();
-    notificationService.sendBidUpdatesNotification(user.sub, bid, body.status);
+
+    await eventEmitter.emit('sendBidUpdatesNotification', user.sub, bid, body.status);
   } catch (error) {
     // If an error occurred, abort the whole transaction and
     // undo any changes that might have happened
@@ -663,7 +685,7 @@ const updatePickUpDate = async (userId, body) => {
 
   await resourceRepo.updateOne(constant.COLLECTIONS.PRODUCT, { query, data });
 
-  notificationService.orderUpdatesNotification(userId, product, OrderStatus.PICKED_UP_DATE_ESTIMATED);
+  await eventEmitter.emit('orderUpdatesNotification', userId, product, OrderStatus.PICKED_UP_DATE_ESTIMATED);
 };
 
 /**
@@ -701,7 +723,8 @@ const orderPickedUp = async (userId, body) => {
   };
 
   await resourceRepo.updateOne(constant.COLLECTIONS.PRODUCT, { query, data });
-  notificationService.orderUpdatesNotification(userId, product, OrderStatus.PICKED_UP);
+
+  await eventEmitter.emit('orderUpdatesNotification', userId, product, OrderStatus.PICKED_UP);
 };
 
 /**
@@ -748,7 +771,7 @@ const makePayoutToUser = async (paidBy, body) => {
 
   await resourceRepo.updateOne(constant.COLLECTIONS.PRODUCT, { query, data });
 
-  notificationService.orderUpdatesNotification(userId, product, OrderStatus.PAID);
+  await eventEmitter.emit('orderUpdatesNotification', userId, product, OrderStatus.PAID);
 };
 
 module.exports = {
@@ -765,4 +788,6 @@ module.exports = {
   makePayoutToUser,
   editProduct,
   getProductById,
+  getUserProductById,
+  getProductBidHistoryByProductId,
 };

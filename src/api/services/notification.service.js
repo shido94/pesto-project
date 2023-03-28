@@ -1,6 +1,6 @@
 const httpStatus = require('http-status');
 const { Notification } = require('../models');
-const { apiError, constant } = require('../utils');
+const { apiError, constant, eventEmitter } = require('../utils');
 const resourceRepo = require('../dataRepositories/resourceRepo');
 const aggregationPaginate = require('../utils/aggregation-paginate');
 const { ObjectId } = require('mongodb');
@@ -14,15 +14,10 @@ const userService = require('./user.service');
  * @returns {Promise<User>}
  */
 const getNotificationAggregatedPagination = async (aggregate, options) => {
-  try {
-    return resourceRepo.aggregatePaginate(constant.COLLECTIONS.NOTIFICATION, {
-      aggregate,
-      options,
-    });
-  } catch (error) {
-    logger.info('getNotificationAggregatedPagination error ', error);
-    throw new apiError(httpStatus.INTERNAL_SERVER_ERROR, 'Something went wrong, Please try again');
-  }
+  return resourceRepo.aggregatePaginate(constant.COLLECTIONS.NOTIFICATION, {
+    aggregate,
+    options,
+  });
 };
 
 /**
@@ -31,14 +26,9 @@ const getNotificationAggregatedPagination = async (aggregate, options) => {
  * @returns {Promise<Notification>}
  */
 const createNotification = async (notificationData) => {
-  try {
-    return resourceRepo.create(constant.COLLECTIONS.NOTIFICATION, {
-      data: notificationData,
-    });
-  } catch (error) {
-    logger.info('createNotification error ', error);
-    throw new apiError(httpStatus.INTERNAL_SERVER_ERROR, 'Something went wrong, Please try again');
-  }
+  return resourceRepo.create(constant.COLLECTIONS.NOTIFICATION, {
+    data: notificationData,
+  });
 };
 
 /**
@@ -47,36 +37,12 @@ const createNotification = async (notificationData) => {
  * @returns {Promise<Notification>}
  */
 const getNotificationById = async (id) => {
-  try {
-    const query = {
-      _id: id,
-    };
-    return resourceRepo.findOne(constant.COLLECTIONS.NOTIFICATION, {
-      query,
-    });
-  } catch (error) {
-    logger.info('getNotificationById error ', error);
-    throw new apiError(httpStatus.INTERNAL_SERVER_ERROR, 'Something went wrong, Please try again');
-  }
-};
-
-/**
- * Save notifications
- * @param {string} senderId
- * @param {string} compId
- * @param {string} userIds
- * @returns {Promise}
- */
-const saveNotifications = async (senderId, { compId, brokersId }) => {
-  logger.info('Inside saveNotifications', JSON.stringify({ senderId, compId, brokersId }));
-
-  const data = {
-    senderId: senderId,
-    receiverIds: brokersId,
-    type: 1, // comp details
-    compId: compId,
+  const query = {
+    _id: ObjectId(id),
   };
-  await createNotification(data);
+  return resourceRepo.findOne(constant.COLLECTIONS.NOTIFICATION, {
+    query,
+  });
 };
 
 /**
@@ -86,22 +52,17 @@ const saveNotifications = async (senderId, { compId, brokersId }) => {
  * @returns {Promise<Comp>}
  */
 const aggregateUserNotification = async (filter, options) => {
-  try {
-    const aggregateQuery = aggregateUserNotifications(filter);
+  const aggregateQuery = aggregateUserNotifications(filter);
 
-    /**
-     * Manage Pagination on  the aggregation query
-     */
-    const aggregate = await getNotificationAggregatedPagination(aggregateQuery, options);
+  /**
+   * Manage Pagination on  the aggregation query
+   */
+  const aggregate = await getNotificationAggregatedPagination(aggregateQuery, options);
 
-    /**
-     * After getting data from the mongoose pagination, we are modifying some fields
-     */
-    return aggregationPaginate(aggregate);
-  } catch (error) {
-    logger.info('aggregateNotification error ', error);
-    throw new apiError(httpStatus.INTERNAL_SERVER_ERROR, 'Something went wrong, Please try again');
-  }
+  /**
+   * After getting data from the mongoose pagination, we are modifying some fields
+   */
+  return aggregationPaginate(aggregate);
 };
 
 /**
@@ -203,24 +164,19 @@ const productLookupQuery = () => {
  * @returns {Promise<Notification>}
  */
 const removeUserFromNotificationReceiversArray = (id, userId) => {
-  try {
-    const query = {
-      _id: id,
-    };
+  const query = {
+    _id: id,
+  };
 
-    const data = {
-      $push: { deletedBy: userId },
-      $pull: { receiverIds: userId },
-    };
+  const data = {
+    $push: { deletedBy: userId },
+    $pull: { receiverIds: userId },
+  };
 
-    return resourceRepo.updateOne(constant.COLLECTIONS.NOTIFICATION, {
-      query,
-      data,
-    });
-  } catch (error) {
-    logger.info('removeUserFromNotificationReceiversArray error ', error);
-    throw new apiError(httpStatus.INTERNAL_SERVER_ERROR, 'Something went wrong, Please try again');
-  }
+  return resourceRepo.updateOne(constant.COLLECTIONS.NOTIFICATION, {
+    query,
+    data,
+  });
 };
 
 /**
@@ -229,24 +185,19 @@ const removeUserFromNotificationReceiversArray = (id, userId) => {
  * @returns {Promise<Notification>}
  */
 const removeUserFromAllReceiversArray = (userId) => {
-  try {
-    const query = {
-      receiverIds: { $in: [userId] },
-    };
+  const query = {
+    receiverIds: { $in: [userId] },
+  };
 
-    const data = {
-      $push: { deletedBy: userId },
-      $pull: { receiverIds: userId },
-    };
+  const data = {
+    $push: { deletedBy: userId },
+    $pull: { receiverIds: userId },
+  };
 
-    return resourceRepo.updateMany(constant.COLLECTIONS.NOTIFICATION, {
-      query,
-      data,
-    });
-  } catch (error) {
-    logger.info('removeUserFromReceiversArray error ', error);
-    throw new apiError(httpStatus.INTERNAL_SERVER_ERROR, 'Something went wrong, Please try again');
-  }
+  return resourceRepo.updateMany(constant.COLLECTIONS.NOTIFICATION, {
+    query,
+    data,
+  });
 };
 
 /**
@@ -274,43 +225,13 @@ const deleteNotification = async (userId, notificationId) => {
 const deleteNotificationFromDB = async () => {
   logger.info('Inside deleteNotificationFromDB');
 
-  try {
-    const query = {
-      receiverIds: { $exists: true, $eq: [] },
-    };
+  const query = {
+    receiverIds: { $exists: true, $eq: [] },
+  };
 
-    return resourceRepo.remove(constant.COLLECTIONS.NOTIFICATION, {
-      query,
-    });
-  } catch (error) {
-    logger.info('deleteNotificationFromDB error ', error);
-    throw new apiError(httpStatus.INTERNAL_SERVER_ERROR, 'Something went wrong, Please try again');
-  }
-};
-
-/**
- * Get notification by compId
- * @param {String} compId
- * @param {String} userId
- * @returns {Promise<Notification>}
- */
-const getNotificationByCompId = (compId, userId) => {
-  logger.info('Get comp from notification');
-
-  try {
-    const query = {
-      compId,
-      type: 1,
-      receiverIds: { $in: [userId] },
-    };
-
-    return resourceRepo.findOne(constant.COLLECTIONS.NOTIFICATION, {
-      query,
-    });
-  } catch (error) {
-    logger.info('getNotificationByCompId error ', error);
-    throw new apiError(httpStatus.INTERNAL_SERVER_ERROR, 'Something went wrong, Please try again');
-  }
+  return resourceRepo.remove(constant.COLLECTIONS.NOTIFICATION, {
+    query,
+  });
 };
 
 /**
@@ -319,21 +240,14 @@ const getNotificationByCompId = (compId, userId) => {
  * @returns {Promise<Notification>}
  */
 const unreadNotificationCount = (userId) => {
-  logger.info('Inside unreadNotificationCount');
+  const query = {
+    receiverIds: { $in: [ObjectId(userId)] },
+    readBy: { $nin: [ObjectId(userId)] },
+  };
 
-  try {
-    const query = {
-      receiverIds: { $in: [ObjectId(userId)] },
-      readBy: { $nin: [ObjectId(userId)] },
-    };
-
-    return resourceRepo.countDocuments(constant.COLLECTIONS.NOTIFICATION, {
-      query,
-    });
-  } catch (error) {
-    logger.info('unreadNotificationCount error ', error);
-    throw new apiError(httpStatus.INTERNAL_SERVER_ERROR, 'Something went wrong, Please try again');
-  }
+  return resourceRepo.countDocuments(constant.COLLECTIONS.NOTIFICATION, {
+    query,
+  });
 };
 
 /**
@@ -345,35 +259,24 @@ const readAllNotification = (userId) => {
   logger.info('Inside readAllNotification');
   userId = ObjectId(userId);
 
-  try {
-    const query = {
-      receiverIds: { $in: [userId] },
-      readBy: { $nin: [userId] },
-    };
+  const query = {
+    receiverIds: { $in: [userId] },
+    readBy: { $nin: [userId] },
+  };
 
-    const data = {
-      $push: {
-        readBy: userId,
-      },
-    };
+  const data = {
+    $push: {
+      readBy: userId,
+    },
+  };
 
-    return resourceRepo.updateMany(constant.COLLECTIONS.NOTIFICATION, {
-      query,
-      data,
-    });
-  } catch (error) {
-    logger.info('readAllNotification error ', error);
-    throw new apiError(httpStatus.INTERNAL_SERVER_ERROR, 'Something went wrong, Please try again');
-  }
+  return resourceRepo.updateMany(constant.COLLECTIONS.NOTIFICATION, {
+    query,
+    data,
+  });
 };
 
-/**
- * Save add product notification
- * @param {string} senderId
- * @param {Object} data
- * @returns {Promise}
- */
-const sendAddProductNotification = async (senderId, data) => {
+eventEmitter.on('sendAddProductNotification', async (senderId, data) => {
   const sender = await userService.getUserById(ObjectId(senderId));
   const receiver = await userService.getUserByEmail('admin@admin.com');
 
@@ -389,15 +292,9 @@ const sendAddProductNotification = async (senderId, data) => {
 
   await createNotification(notificationData);
   logger.info('Add product Notification Saved');
-};
+});
 
-/**
- * Save add product notification
- * @param {string} senderId
- * @param {Object} product
- * @returns {Promise}
- */
-const sendBidCreateNotification = async (senderId, product) => {
+eventEmitter.on('sendBidCreateNotification', async (senderId, product) => {
   const sender = await userService.getUserById(ObjectId(senderId));
 
   const notificationData = {
@@ -412,16 +309,9 @@ const sendBidCreateNotification = async (senderId, product) => {
 
   await createNotification(notificationData);
   logger.info('Updates bid Notification Saved');
-};
+});
 
-/**
- * Save add product notification
- * @param {string} senderId
- * @param {Object} bid
- * @param {Object} status
- * @returns {Promise}
- */
-const sendBidUpdatesNotification = async (senderId, bid, status) => {
+eventEmitter.on('sendBidUpdatesNotification', async (senderId, bid, status) => {
   let description = '';
   const sender = await userService.getUserById(ObjectId(senderId));
 
@@ -447,16 +337,9 @@ const sendBidUpdatesNotification = async (senderId, bid, status) => {
 
   await createNotification(notificationData);
   logger.info('Updates bid Notification Saved');
-};
+});
 
-/**
- * Save add product notification
- * @param {string} senderId
- * @param {Object} bid
- * @param {Object} status
- * @returns {Promise}
- */
-const orderUpdatesNotification = async (senderId, product, status) => {
+eventEmitter.on('orderUpdatesNotification', async (senderId, product, status) => {
   let description = '';
   const sender = await userService.getUserById(ObjectId(senderId));
   let title = constant.ORDER;
@@ -468,7 +351,7 @@ const orderUpdatesNotification = async (senderId, product, status) => {
     description = `${sender.name} has picked your order.`;
   }
   if (status === OrderStatus.PAID) {
-    description = `${sender.name} has rejected the price offered by you.`;
+    description = `${sender.name} has initiated the payment, You'll receive in 3-5 business days`;
     title = constant.PAYMENT;
   }
 
@@ -484,18 +367,12 @@ const orderUpdatesNotification = async (senderId, product, status) => {
 
   await createNotification(notificationData);
   logger.info('Updates bid Notification Saved');
-};
+});
 
 module.exports = {
-  saveNotifications,
-  getNotificationById,
   aggregateUserNotification,
   deleteNotification,
-  getNotificationByCompId,
   unreadNotificationCount,
   readAllNotification,
-  sendAddProductNotification,
-  sendBidUpdatesNotification,
-  orderUpdatesNotification,
-  sendBidCreateNotification,
+  getNotificationById,
 };

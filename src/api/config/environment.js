@@ -15,6 +15,7 @@ if (fs.existsSync(path.join(process.cwd(), `/.env.${Environment}`))) {
 
 module.exports = (function () {
   return {
+    ENV: Environment,
     PORT: process.env.PORT || 3000,
     API_URI: process.env.API_URI,
     DATABASE: process.env.DATABASE || 'mongodb://127.0.0.1:27017/test',

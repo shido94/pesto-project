@@ -18,6 +18,7 @@ const {
 const aggregationPaginate = require('./aggregation-paginate');
 const s3 = require('./s3');
 const multer = require('./multer');
+const eventEmitter = require('./event');
 
 module.exports = {
   apiError,
@@ -39,4 +40,5 @@ module.exports = {
   aggregationPaginate,
   s3,
   multer,
+  eventEmitter,
 };

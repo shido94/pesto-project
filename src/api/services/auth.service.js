@@ -1,6 +1,5 @@
 const httpStatus = require('http-status');
 const userService = require('./user.service');
-const tokenService = require('./token.service');
 const paymentService = require('./payment.service');
 const {
   responseMessage,
@@ -130,79 +129,6 @@ const login = async (mobile) => {
 };
 
 /**
- * Get user with email or mobile
- * @param {string} email
- * @param {string} mobile
- * @returns true/false
- */
-const checkUserWithEmailOrMobile = async (email, mobile) => {
-  logger.debug('Inside checkUserWithEmailOrMobile, Email = ' + email + ' and Mobile = ' + mobile);
-
-  /** Check if user exists */
-  if (await userService.getUserByEmailOrMobile(email, mobile)) {
-    throw new apiError(httpStatus.CONFLICT, responseMessage.USER_ALREADY_EXIST);
-  }
-
-  logger.info('User not found inside checkUserWithEmailOrMobile ');
-  return true;
-};
-
-/**
- * Refresh auth tokens
- * @param {string} refreshToken
- * @returns {Promise<Object>}
- */
-const refreshAuth = async (refreshToken) => {
-  try {
-    const refreshTokenDoc = await tokenService.verifyRefreshToken(refreshToken);
-
-    logger.info('refreshTokenDoc ' + refreshTokenDoc);
-    const user = await userService.getUserById(refreshTokenDoc.sub);
-    if (!user) {
-      throw new Error();
-    }
-    return tokenService.generateAuthTokens(user._id);
-  } catch (error) {
-    throw new apiError(httpStatus.UNAUTHORIZED, 'Please authenticate');
-  }
-};
-
-/**
- * Forgot Password
- * @param {Object} body
- * @returns object
- */
-const forgotPassword = async ({ mobile }) => {
-  logger.debug('Inside register');
-  try {
-    /** Check if user exists */
-    const user = await userService.getUserByMobile(mobile);
-    if (!user) {
-      logger.error('User not found with mobile => ', mobile);
-      throw new apiError(httpStatus.NOT_FOUND, responseMessage.NO_USER_FOUND);
-    }
-
-    const otp = randomNumberGenerator(4);
-    const otpExpiry = setTimeFactory(new Date(), +constant.TOKEN_EXPIRATION, ExpiryUnit.MINUTE);
-
-    /** update otp data */
-    await resourceRepo.updateOne(constant.COLLECTIONS.USER, {
-      query: {
-        _id: user._id,
-      },
-      data: {
-        forgotPasswordOtp: otp,
-        forgotPasswordOtpExpiry: otpExpiry,
-      },
-    });
-
-    return user;
-  } catch (error) {
-    throw error;
-  }
-};
-
-/**
  * Login with mobile
  * @param {string} mobile
  * @returns {Promise<User>}
@@ -244,8 +170,5 @@ module.exports = {
   register,
   verifyAuthOtp,
   login,
-  checkUserWithEmailOrMobile,
-  refreshAuth,
-  forgotPassword,
   resendAuthUserOtp,
 };

@@ -20,22 +20,6 @@ class DbDataProvider {
   }
 
   /**
-   * Find by id
-   */
-  findById(collectionName, queryObject) {
-    return new Promise((resolve, reject) => {
-      domain[collectionName]
-        .findById(queryObject)
-        .then((results) => {
-          resolve(results);
-        })
-        .catch((error) => {
-          reject(error);
-        });
-    });
-  }
-
-  /**
    * Find by query
    */
   find(collectionName, queryObject) {
@@ -122,22 +106,6 @@ class DbDataProvider {
     return new Promise((resolve, reject) => {
       domain[collectionName]
         .create(queryObject.data, queryObject.options)
-        .then((results) => {
-          resolve(results);
-        })
-        .catch((error) => {
-          reject(error);
-        });
-    });
-  }
-
-  /**
-   * Create Many Data
-   */
-  createMany(collectionName, queryObject) {
-    return new Promise((resolve, reject) => {
-      domain[collectionName]
-        .insertMany(queryObject.data, queryObject.options)
         .then((results) => {
           resolve(results);
         })

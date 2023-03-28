@@ -33,6 +33,9 @@ const updateProfile = {
       'string.base': `Email must be string`,
       'any.email': 'Email is not valid',
     }),
+    identityProofType: Joi.number().required().valid(1, 2).messages({
+      'any.required': `Identity proof type is required`,
+    }),
     identityProofNumber: Joi.string().required().messages({
       'any.required': `Identity proof is required`,
     }),

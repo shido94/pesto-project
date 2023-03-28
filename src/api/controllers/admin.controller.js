@@ -11,7 +11,7 @@ const login = catchAsync(async (req, res) => {
   logger.info('User found');
 
   // /** Generate token */
-  const tokens = await tokenService.generateAuthTokens(user._id, user.role);
+  const tokens = tokenService.generateAuthTokens(user._id, user.role);
 
   return responseHandler.sendSuccess(res, httpStatus.OK, responseMessage.SUCCESS, { tokens, user });
 });

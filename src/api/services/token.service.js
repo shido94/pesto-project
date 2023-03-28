@@ -1,8 +1,5 @@
 const jwt = require('jsonwebtoken');
-const dayjs = require('dayjs');
-const httpStatus = require('http-status');
 const { constant, UserRole } = require('../utils');
-const { apiError } = require('../utils');
 
 /**
  * Generate token
@@ -12,42 +9,8 @@ const { apiError } = require('../utils');
  * @param {string} [secret]
  * @returns {string}
  */
-const generateToken = ({
-  payload,
-  secret = constant.ACCESS_TOKEN_SECRET,
-  options,
-}) => {
+const generateToken = ({ payload, secret = constant.ACCESS_TOKEN_SECRET, options }) => {
   return jwt.sign(payload, secret, options);
-};
-
-/**
- * Verify token
- * @param {String} token
- * @returns {string}
- */
-const verifyAccessToken = (token, secret = constant.ACCESS_TOKEN_SECRET) => {
-  logger.info('verifyAccessToken');
-  try {
-    return jwt.verify(token, secret);
-  } catch (error) {
-    logger.error('verifyAccessToken error => ', error);
-    throw new apiError(httpStatus.UNAUTHORIZED, 'Session has been expired');
-  }
-};
-
-/**
- * Verify token
- * @param {String} token
- * @returns {string}
- */
-const verifyRefreshToken = (token, secret = constant.REFRESH_TOKEN_SECRET) => {
-  logger.info('verifyRefreshToken');
-  try {
-    return jwt.verify(token, secret);
-  } catch (error) {
-    logger.error('verifyRefreshToken error => ', error);
-    throw new apiError(httpStatus.UNAUTHORIZED, 'Session has been expired');
-  }
 };
 
 /**
@@ -55,7 +18,7 @@ const verifyRefreshToken = (token, secret = constant.REFRESH_TOKEN_SECRET) => {
  * @param {User} user
  * @returns {Promise<Object>}
  */
-const generateAuthTokens = async (userId, role = UserRole.USER) => {
+const generateAuthTokens = (userId, role = UserRole.USER) => {
   const payload = {
     sub: userId,
     role: role,
@@ -78,21 +41,7 @@ const generateAuthTokens = async (userId, role = UserRole.USER) => {
   };
 };
 
-/**
- * Generate signup token
- * @param {*} body
- * @returns
- */
-const generatePayloadToken = async (payload) => {
-  payload.exp = dayjs().add(constant.TOKEN_EXPIRATION, 'minutes').unix();
-  const accessToken = generateToken({ payload });
-  return accessToken;
-};
-
 module.exports = {
   generateToken,
-  verifyAccessToken,
-  verifyRefreshToken,
-  generatePayloadToken,
   generateAuthTokens,
 };

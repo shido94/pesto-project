@@ -18,7 +18,7 @@ const verifyAuthOtp = catchAsync(async (req, res) => {
   logger.info('User created');
 
   // /** Generate token */
-  const tokens = await tokenService.generateAuthTokens(user._id);
+  const tokens = tokenService.generateAuthTokens(user._id);
 
   return responseHandler.sendSuccess(res, httpStatus.OK, responseMessage.SUCCESS, { tokens, user });
 });

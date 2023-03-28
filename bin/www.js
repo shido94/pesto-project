@@ -6,6 +6,8 @@
 
 const http = require('http');
 const app = require('../src/api/server/index');
+require('../db/index');
+
 const logger = require('../src/api/utils/logger');
 
 /**

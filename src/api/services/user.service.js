@@ -95,7 +95,7 @@ const getUserByMobile = async (mobile) => {
  */
 const getUserById = async (id) => {
   const query = {
-    _id: id,
+    _id: ObjectId(id),
   };
 
   return resourceRepo.findOne(constant.COLLECTIONS.USER, { query });
@@ -205,6 +205,13 @@ const updateUserprofile = async (userId, body) => {
   if (!user) {
     logger.error('User not found with the id ', userId);
     throw new apiError(httpStatus.NOT_FOUND, responseMessage.NO_USER_FOUND);
+  }
+
+  const dbUser = await getUserByEmailOrMobile(body.email);
+  /** Check if user exists */
+  if (dbUser && dbUser._id.toString() !== userId.toString()) {
+    logger.error('User already exist with email or mobile');
+    throw new apiError(httpStatus.CONFLICT, responseMessage.USER_ALREADY_EXIST);
   }
 
   const query = {
@@ -377,4 +384,5 @@ module.exports = {
   updateUserMobile,
   verifyUpdateMobileOtp,
   updateFund,
+  getUserByEmailOrMobile,
 };
