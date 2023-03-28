@@ -4,14 +4,7 @@ const dotenv = require('dotenv');
 const Environment = process.env.NODE_ENV;
 
 // Load env file
-if (fs.existsSync(path.join(process.cwd(), `/.env.${Environment}`))) {
-  dotenv.config({
-    path: `.env.${Environment}`,
-  });
-} else {
-  // process.exit(1);
-  dotenv.config({});
-}
+dotenv.config({});
 
 module.exports = (function () {
   return {

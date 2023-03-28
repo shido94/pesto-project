@@ -90,4 +90,14 @@ const updateFund = {
     .oxor('bankAccountNumber', 'UPI'),
 };
 
-module.exports = { cityWeatherQuery, blockUser, updateProfile, updateMobile, updateFund };
+const verifyUserOtp = {
+  body: Joi.object()
+    .keys({
+      otp: Joi.string().trim().required().messages({
+        'any.required': 'Otp is missing',
+      }),
+    })
+    .required(),
+};
+
+module.exports = { cityWeatherQuery, blockUser, updateProfile, updateMobile, updateFund, verifyUserOtp };
