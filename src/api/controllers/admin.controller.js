@@ -71,6 +71,15 @@ const makePayoutToUser = catchAsync(async (req, res) => {
   return responseHandler.sendSuccess(res, httpStatus.OK, responseMessage.SUCCESS, {});
 });
 
+const addCategory = catchAsync(async (req, res) => {
+  /** Add user to DB */
+  const body = pick(req.body, ['name', 'parentId', 'logo']);
+
+  await productService.addCategory(body);
+
+  return responseHandler.sendSuccess(res, httpStatus.OK, responseMessage.SUCCESS, {});
+});
+
 module.exports = {
   login,
   getUsers,
@@ -79,4 +88,5 @@ module.exports = {
   updatePickUpDate,
   updatePickUp,
   makePayoutToUser,
+  addCategory,
 };

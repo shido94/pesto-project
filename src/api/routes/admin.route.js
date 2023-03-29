@@ -239,4 +239,41 @@ router.put(
   adminController.makePayoutToUser,
 );
 
+/**
+ * @swagger
+ *  /admin/products/category:
+ *   post:
+ *     tags: [Admin]
+ *     security:
+ *          - Bearer: []
+ *     description: Add Category
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *     - name: body
+ *       in: body
+ *       description: Mandatory fields
+ *       required: true
+ *       schema:
+ *         type: object
+ *         required:
+ *           - name
+ *         properties:
+ *           parentId:
+ *             type: string
+ *           name:
+ *             type: string
+ *           logo:
+ *             type: string
+ *     responses:
+ *       200:
+ *         description: Return Message
+ */
+router.post(
+  '/products/category',
+  auth(UserRole.ADMIN),
+  validate(productValidation.addCategory),
+  adminController.addCategory,
+);
+
 module.exports = router;

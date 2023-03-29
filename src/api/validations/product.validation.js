@@ -124,6 +124,16 @@ const payout = {
   }),
 };
 
+const addCategory = {
+  body: Joi.object().keys({
+    name: Joi.string().trim().required().messages({
+      'any.required': `Name is required`,
+    }),
+    parentId: Joi.string(),
+    logo: Joi.string(),
+  }),
+};
+
 module.exports = {
   sellProduct,
   updateProduct,
@@ -132,4 +142,5 @@ module.exports = {
   addPickedUpDate,
   validateProduct,
   payout,
+  addCategory,
 };

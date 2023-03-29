@@ -23,7 +23,21 @@ const { getUserById } = require('./user.service');
  * @returns {Promise<Category>}
  */
 const getCategories = async () => {
-  return resourceRepo.find(constant.COLLECTIONS.CATEGORY, {});
+  // return resourceRepo.find(constant.COLLECTIONS.CATEGORY, {});
+
+  const query = [];
+  query.push({
+    $match: {
+      parentId: { $exists: false },
+    },
+  });
+
+  // /**
+  //  * Get Category detail
+  //  */
+  query.push(subCategoryLookupQuery());
+
+  return await Promise.resolve(Category.aggregate(query));
 };
 
 /**
@@ -35,7 +49,6 @@ const getCategoryById = async (id) => {
     const query = {
       _id: ObjectId(id),
     };
-
     return resourceRepo.findOne(constant.COLLECTIONS.CATEGORY, { query });
   } catch (error) {
     throw new apiError(httpStatus.BAD_REQUEST, responseMessage.INVALID_CATEGORY);
@@ -252,6 +265,27 @@ const categoryLookupQuery = () => {
         },
       ],
       as: 'category',
+    },
+  };
+};
+
+/**
+ * subCategoryLookupQuery
+ * @returns {Object}
+ */
+const subCategoryLookupQuery = () => {
+  return {
+    $lookup: {
+      from: 'categories',
+      let: { model_id: '$_id' },
+      pipeline: [
+        {
+          $match: {
+            $expr: { $eq: ['$parentId', '$$model_id'] },
+          },
+        },
+      ],
+      as: 'subCategories',
     },
   };
 };
@@ -782,6 +816,28 @@ const makePayoutToUser = async (paidBy, body) => {
   await eventEmitter.emit('orderUpdatesNotification', paidBy, product, OrderStatus.PAID);
 };
 
+/**
+ * Get Categories
+ * @returns {Promise<Category>}
+ */
+const addCategory = async (body) => {
+  if (body.parentId) {
+    const category = await getCategoryById(body.parentId);
+    if (!category) {
+      logger.error(`Invalid parent category id`);
+      throw new apiError(httpStatus.BAD_REQUEST, responseMessage.INVALID_CATEGORY);
+    }
+  }
+
+  const data = {
+    parentId: body.parentId,
+    name: body.name,
+    logo: body.logo,
+  };
+
+  return resourceRepo.create(constant.COLLECTIONS.CATEGORY, { data });
+};
+
 module.exports = {
   getCategories,
   addSellRequest,
@@ -798,4 +854,5 @@ module.exports = {
   getProductById,
   getUserProductById,
   getProductBidHistoryByProductId,
+  addCategory,
 };

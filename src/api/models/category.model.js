@@ -9,9 +9,9 @@ const categorySchema = Schema(
       type: String,
       trim: true,
     },
-    categoryEnum: {
-      type: Number,
-      required: true,
+    parentId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Category',
     },
     logo: {
       type: String,
@@ -21,7 +21,7 @@ const categorySchema = Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 // add plugin that converts mongoose to json
