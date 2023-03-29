@@ -23,8 +23,6 @@ const { getUserById } = require('./user.service');
  * @returns {Promise<Category>}
  */
 const getCategories = async () => {
-  // return resourceRepo.find(constant.COLLECTIONS.CATEGORY, {});
-
   const query = [];
   query.push({
     $match: {
@@ -32,9 +30,9 @@ const getCategories = async () => {
     },
   });
 
-  // /**
-  //  * Get Category detail
-  //  */
+  /**
+   * Get Category detail
+   */
   query.push(subCategoryLookupQuery());
 
   return await Promise.resolve(Category.aggregate(query));
@@ -46,10 +44,22 @@ const getCategories = async () => {
  */
 const getCategoryById = async (id) => {
   try {
-    const query = {
-      _id: ObjectId(id),
-    };
-    return resourceRepo.findOne(constant.COLLECTIONS.CATEGORY, { query });
+    const query = [];
+    query.push({
+      $match: {
+        _id: ObjectId(id),
+      },
+    });
+
+    /**
+     * Get Category detail
+     */
+    query.push(subCategoryLookupQuery());
+
+    const categories = await Promise.resolve(Category.aggregate(query));
+
+    /** Check if product exists */
+    return categories[0];
   } catch (error) {
     throw new apiError(httpStatus.BAD_REQUEST, responseMessage.INVALID_CATEGORY);
   }
@@ -838,6 +848,29 @@ const addCategory = async (body) => {
   return resourceRepo.create(constant.COLLECTIONS.CATEGORY, { data });
 };
 
+/**
+ * Delete Categories
+ * @param {String} categoryId
+ * @returns {Promise<Category>}
+ */
+const deleteCategory = async ({ categoryId }) => {
+  const category = await getCategoryById(categoryId);
+  if (!category) {
+    logger.error(`Invalid parent category id`);
+    throw new apiError(httpStatus.BAD_REQUEST, responseMessage.INVALID_CATEGORY);
+  }
+
+  if (category.subCategories.length) {
+    logger.error(`Invalid parent category id`);
+    throw new apiError(httpStatus.BAD_REQUEST, responseMessage.CAN_NOT_DELETE_CATEGORY);
+  }
+
+  const query = {
+    _id: ObjectId(categoryId),
+  };
+  return resourceRepo.remove(constant.COLLECTIONS.CATEGORY, { query });
+};
+
 module.exports = {
   getCategories,
   addSellRequest,
@@ -855,4 +888,5 @@ module.exports = {
   getUserProductById,
   getProductBidHistoryByProductId,
   addCategory,
+  deleteCategory,
 };

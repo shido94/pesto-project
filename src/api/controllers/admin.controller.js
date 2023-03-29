@@ -80,6 +80,15 @@ const addCategory = catchAsync(async (req, res) => {
   return responseHandler.sendSuccess(res, httpStatus.OK, responseMessage.SUCCESS, {});
 });
 
+const deleteCategory = catchAsync(async (req, res) => {
+  /** Add user to DB */
+  const body = pick(req.body, ['categoryId']);
+
+  await productService.deleteCategory(body);
+
+  return responseHandler.sendSuccess(res, httpStatus.OK, responseMessage.SUCCESS, {});
+});
+
 module.exports = {
   login,
   getUsers,
@@ -89,4 +98,5 @@ module.exports = {
   updatePickUp,
   makePayoutToUser,
   addCategory,
+  deleteCategory,
 };

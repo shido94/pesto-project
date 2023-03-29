@@ -134,6 +134,14 @@ const addCategory = {
   }),
 };
 
+const deleteCategory = {
+  body: Joi.object().keys({
+    categoryId: Joi.string().trim().required().messages({
+      'any.required': `Category id is required`,
+    }),
+  }),
+};
+
 module.exports = {
   sellProduct,
   updateProduct,
@@ -143,4 +151,5 @@ module.exports = {
   validateProduct,
   payout,
   addCategory,
+  deleteCategory,
 };

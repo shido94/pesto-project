@@ -276,4 +276,37 @@ router.post(
   adminController.addCategory,
 );
 
+/**
+ * @swagger
+ *  /admin/products/category:
+ *   delete:
+ *     tags: [Admin]
+ *     security:
+ *          - Bearer: []
+ *     description: Delete Category
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *     - name: body
+ *       in: body
+ *       description: Mandatory fields
+ *       required: true
+ *       schema:
+ *         type: object
+ *         required:
+ *           - categoryId
+ *         properties:
+ *           categoryId:
+ *             type: string
+ *     responses:
+ *       200:
+ *         description: Return Message
+ */
+router.delete(
+  '/products/category',
+  auth(UserRole.ADMIN),
+  validate(productValidation.deleteCategory),
+  adminController.deleteCategory,
+);
+
 module.exports = router;

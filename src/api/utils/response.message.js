@@ -8,6 +8,7 @@ module.exports = {
   INVALID_USER: 'Not a valid user',
   USER_ALREADY_EXIST: 'User already exist with mobile or email',
   INVALID_CATEGORY: 'Please select a valid category',
+  CAN_NOT_DELETE_CATEGORY: 'You can not delete this category',
   INVALID_PRODUCT: 'Please select a valid product',
   PRODUCT_NOT_FOUND: 'Product not found',
   PRODUCT_NOT_ACCEPTED: 'You are not allowed to access this, Product bid is still in pending state',
