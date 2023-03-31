@@ -21,7 +21,14 @@ const login = async (email, password) => {
     logger.info('Invalid Password');
     throw new apiError(httpStatus.UNAUTHORIZED, responseMessage.INVALID_CREDENTIAL_MSG);
   }
-  return user;
+
+  return {
+    _id: user._id,
+    name: user.name,
+    email: user.name,
+    role: user.role,
+    mobile: user.mobile,
+  };
 };
 
 module.exports = {

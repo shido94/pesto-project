@@ -33,7 +33,7 @@ describe('Product Routes', () => {
       await request(app)
         .get(ProductUrl.GET_PRODUCTS)
         .set('Authorization', `Bearer ${adminTokens.accessToken}`)
-        .send()
+        .query({ bidStatus: 1, orderStatus: 1 })
         .expect(httpStatus.OK);
     });
   });
@@ -82,7 +82,7 @@ describe('Product Routes', () => {
 
     beforeEach(() => {
       newProduct = {
-        productId: '6421ce85467df65d59d15a22',
+        productId: '641ff01975d438bb000841d6',
         categoryId: '641fe3d2ef2615d31e0fc236',
         type: 'Bed',
         title: 'selling bed',
@@ -101,6 +101,15 @@ describe('Product Routes', () => {
 
     test('Should return 400 if category is not valid', async () => {
       newProduct.categoryId = 'InvalidCategory';
+      await request(app)
+        .put(ProductUrl.ADD_PRODUCTS)
+        .set('Authorization', `Bearer ${userTokens.accessToken}`)
+        .send(newProduct)
+        .expect(httpStatus.BAD_REQUEST);
+    });
+
+    test('Should return 400 if category not found', async () => {
+      newProduct.categoryId = '641fe3d2ef2615d31e0fc266';
       await request(app)
         .put(ProductUrl.ADD_PRODUCTS)
         .set('Authorization', `Bearer ${userTokens.accessToken}`)

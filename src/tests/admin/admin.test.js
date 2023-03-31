@@ -7,6 +7,7 @@ const {
   getProductBidHistoryByProductId,
   getProductById,
   getUserProductById,
+  getAllPendingProducts,
 } = require('../../api/services/product.service');
 const { getUserById } = require('../../api/services/user.service');
 const { OrderStatus, ProductBidStatus } = require('../../api/utils');
@@ -52,12 +53,12 @@ describe('Admin Routes', () => {
 
   describe('make bid /admin/products/bid', () => {
     test('Make first bid', async () => {
-      const productId = '6421ce85467df65d59d15a22';
-      const product = await getProductById(productId);
-      if (!product) {
-        expect(product).toBe(null);
-      } else {
-        const bid = await getProductBidHistoryByProductId(productId);
+      const { results } = await getAllPendingProducts({}, {});
+      const pendingProduct = results.filter(
+        (product) => product.bidStatus === ProductBidStatus.CREATED && product.bidHistory.length === 0,
+      );
+      if (pendingProduct.length) {
+        const bid = await getProductBidHistoryByProductId(pendingProduct[0]._id);
         if (!bid) {
           expect(bid).toBe(null);
         } else {

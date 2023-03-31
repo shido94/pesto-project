@@ -13,7 +13,7 @@
     "pre-commit": "lint-staged",
     "test": "jest -i --colors --verbose --detectOpenHandles",
     "test:watch": "jest -i --watchAll",
-    "coverage": "jest -i --coverage"
+    "coverage": "jest -i --coverage --coverageReporters=text --coverageReporters='json-summary'"
   },
   "lint-staged": {
     "**/*.js": "prettier --write --ignore-unknown"

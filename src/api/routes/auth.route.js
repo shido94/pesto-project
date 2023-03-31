@@ -168,7 +168,7 @@ router.post('/forgot-password', validate(authValidation.validateMobile), authCon
  *             default: 1234
  *           password:
  *             type: string
- *             default: Test@123
+ *             default: Test@1234
  *     responses:
  *       200:
  *         description: Return User and Token
