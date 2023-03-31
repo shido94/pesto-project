@@ -1,8 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { authController } = require('../controllers');
-const { validate, auth } = require('../middleware');
-const { UserRole } = require('../utils');
+const { validate } = require('../middleware');
 const { authValidation } = require('../validations');
 
 /**
@@ -25,16 +24,19 @@ const { authValidation } = require('../validations');
  *       schema:
  *         type: object
  *         required:
- *           - mobile
+ *           - password
  *         properties:
  *           mobile:
  *             type: string
  *             default: 5555555555
+ *           password:
+ *             type: string
+ *             default: Test@1234
  *     responses:
  *       200:
  *         description: Return User
  */
-router.post('/login', validate(authValidation.validateMobile), authController.login);
+router.post('/login', validate(authValidation.login), authController.login);
 
 /**
  * @swagger
@@ -55,6 +57,7 @@ router.post('/login', validate(authValidation.validateMobile), authController.lo
  *           - name
  *           - email
  *           - mobile
+ *           - password
  *           - identityProofType
  *           - identityProofNumber
  *           - identityProofImageUri
@@ -71,6 +74,9 @@ router.post('/login', validate(authValidation.validateMobile), authController.lo
  *             default: test123@test.com
  *           mobile:
  *             type: string
+ *           password:
+ *             type: string
+ *             default: Test@1234
  *           identityProofType:
  *             type: number
  *             default: 1
@@ -109,7 +115,34 @@ router.post('/signup', validate(authValidation.signup), authController.register)
 
 /**
  * @swagger
- * /auth/verify-otp:
+ * /auth/forgot-password:
+ *   post:
+ *     tags:
+ *       - Auth
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *     - name: body
+ *       in: body
+ *       description: Forgot Password
+ *       required: true
+ *       schema:
+ *         type: object
+ *         required:
+ *           - mobile
+ *         properties:
+ *           mobile:
+ *             type: string
+ *             default: 5555555555
+ *     responses:
+ *       200:
+ *         description: Return User and Token
+ */
+router.post('/forgot-password', validate(authValidation.validateMobile), authController.forgotPassword);
+
+/**
+ * @swagger
+ * /auth/reset-password:
  *   post:
  *     tags:
  *       - Auth
@@ -125,6 +158,7 @@ router.post('/signup', validate(authValidation.signup), authController.register)
  *         required:
  *           - userId
  *           - otp
+ *           - password
  *         properties:
  *           userId:
  *             type: string
@@ -132,11 +166,14 @@ router.post('/signup', validate(authValidation.signup), authController.register)
  *           otp:
  *             type: string
  *             default: 1234
+ *           password:
+ *             type: string
+ *             default: Test@123
  *     responses:
  *       200:
  *         description: Return User and Token
  */
-router.post('/verify-otp', validate(authValidation.verifyAuthOtp), authController.verifyAuthOtp);
+router.post('/reset-password', validate(authValidation.resetPassword), authController.resetPassword);
 
 /**
  * @swagger
@@ -163,6 +200,6 @@ router.post('/verify-otp', validate(authValidation.verifyAuthOtp), authControlle
  *       200:
  *         description: Return User and Token
  */
-router.post('/resend-otp', validate(authValidation.resendAuthOtp), authController.resendAuthOtp);
+router.post('/resend-otp', validate(authValidation.resendResetOtp), authController.resendResetOtp);
 
 module.exports = router;

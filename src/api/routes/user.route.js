@@ -237,6 +237,44 @@ router.put('/fund', auth(UserRole.USER), validate(userValidation.updateFund), us
 
 /**
  * @swagger
+ * /users/update-password:
+ *   put:
+ *     tags:
+ *       - Users
+ *     produces:
+ *       - application/json
+ *     security:
+ *          - Bearer: []
+ *     parameters:
+ *     - name: body
+ *       in: body
+ *       description: Update user password
+ *       required: true
+ *       schema:
+ *         type: object
+ *         required:
+ *           - currentPassword
+ *           - newPassword
+ *         properties:
+ *           currentPassword:
+ *             type: string
+ *             default: Test@1234
+ *           newPassword:
+ *             type: string
+ *             default: Test@123
+ *     responses:
+ *       200:
+ *         description: Return User
+ */
+router.put(
+  '/update-password',
+  auth(UserRole.USER, UserRole.ADMIN),
+  validate(userValidation.updatePassword),
+  userController.updatePassword,
+);
+
+/**
+ * @swagger
  *  /users/image:
  *   post:
  *     tags: [Users]

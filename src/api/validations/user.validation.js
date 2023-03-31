@@ -100,4 +100,25 @@ const verifyUserOtp = {
     .required(),
 };
 
-module.exports = { cityWeatherQuery, blockUser, updateProfile, updateMobile, updateFund, verifyUserOtp };
+const updatePassword = {
+  body: Joi.object()
+    .keys({
+      currentPassword: Joi.string().trim().required().messages({
+        'any.required': 'Current password is required',
+      }),
+      newPassword: Joi.string().trim().required().messages({
+        'any.required': 'New password is required',
+      }),
+    })
+    .required(),
+};
+
+module.exports = {
+  cityWeatherQuery,
+  blockUser,
+  updateProfile,
+  updateMobile,
+  updateFund,
+  verifyUserOtp,
+  updatePassword,
+};

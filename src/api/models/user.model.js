@@ -136,6 +136,13 @@ userSchema.pre('save', async function () {
   }
 });
 
+userSchema.pre('updateOne', async function (next) {
+  const user = this;
+  if (user._update.password) {
+    user._update.password = await bcrypt.hash(user._update.password, 8);
+  }
+});
+
 userSchema.virtual('fullAddress').get(function () {
   if (this.landmark) {
     return `${this.addressLine1} ${this.landmark} ${this.city} ${this.state} ${this.country} ${this.zipCode}`;

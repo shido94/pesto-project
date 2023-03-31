@@ -124,6 +124,13 @@ const deleteAllNotification = catchAsync(async (req, res) => {
   return responseHandler.sendSuccess(res, httpStatus.OK, {}, responseMessage.NOTIFICATIONS_DELETE);
 });
 
+const updatePassword = catchAsync(async (req, res) => {
+  /** Add user to DB */
+  await userService.updateNewPassword(req.user.sub, req.body);
+
+  return responseHandler.sendSuccess(res, httpStatus.OK, responseMessage.SUCCESS);
+});
+
 module.exports = {
   getUsers,
   getUserProfile,
@@ -138,4 +145,5 @@ module.exports = {
   getUnreadNotificationCount,
   deleteNotification,
   deleteAllNotification,
+  updatePassword,
 };

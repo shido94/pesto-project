@@ -371,6 +371,36 @@ const updateFund = async (userId, body) => {
   });
 };
 
+/**
+ * Update user profile
+ * @param {String} userId - user id
+ * @param {Object} profile
+ * @returns {Promise<User>}
+ */
+const updateNewPassword = async (userId, { currentPassword, newPassword }) => {
+  const user = await getUserById(userId);
+
+  if (!user) {
+    logger.error('User not found with the id ', userId);
+    throw new apiError(httpStatus.NOT_FOUND, responseMessage.NO_USER_FOUND);
+  }
+
+  if (!(await user.isPasswordMatch(currentPassword))) {
+    logger.info('Invalid Password');
+    throw new apiError(httpStatus.BAD_REQUEST, responseMessage.INCORRECT_CURRENT_PASSWORD);
+  }
+
+  /** update funds in db */
+  await resourceRepo.updateOne(constant.COLLECTIONS.USER, {
+    query: {
+      _id: user._id,
+    },
+    data: {
+      password: newPassword,
+    },
+  });
+};
+
 module.exports = {
   getUserByEmailOrMobile,
   getUserByEmail,
@@ -385,4 +415,5 @@ module.exports = {
   verifyUpdateMobileOtp,
   updateFund,
   getUserByEmailOrMobile,
+  updateNewPassword,
 };

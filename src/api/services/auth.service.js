@@ -55,8 +55,8 @@ const register = async (body) => {
  * @param {Object} body
  * @returns true/false
  */
-const verifyAuthOtp = async ({ userId, otp }) => {
-  logger.debug('Inside verifyAuthOtp');
+const resetPassword = async ({ userId, otp, password }) => {
+  logger.debug('Inside resetPassword');
   try {
     const user = await userService.getUserById(userId);
 
@@ -85,21 +85,21 @@ const verifyAuthOtp = async ({ userId, otp }) => {
       data: {
         otp: '',
         otpExpiry: '',
+        password: password,
       },
     });
-
-    return user;
   } catch (error) {
     throw error;
   }
 };
 
 /**
- * Login with mobile
+ * Login with mobile and password
  * @param {string} mobile
+ * @param {string} password
  * @returns {Promise<User>}
  */
-const login = async (mobile) => {
+const login = async (mobile, password) => {
   logger.info('Inside login');
   const user = await userService.getUserByMobile(mobile);
 
@@ -111,38 +111,31 @@ const login = async (mobile) => {
     throw new apiError(httpStatus.CONFLICT, responseMessage.BLOCKED);
   }
 
-  const otp = randomNumberGenerator(4);
-  const otpExpiry = setTimeFactory(new Date(), +constant.TOKEN_EXPIRATION, ExpiryUnit.MINUTE);
+  if (!(await user.isPasswordMatch(password))) {
+    logger.info('Invalid Password');
+    throw new apiError(httpStatus.BAD_REQUEST, responseMessage.INVALID_CREDENTIAL_MSG);
+  }
 
-  /** update otp data */
-  await resourceRepo.updateOne(constant.COLLECTIONS.USER, {
-    query: {
-      _id: user._id,
-    },
-    data: {
-      otp: otp,
-      otpExpiry: otpExpiry,
-    },
-  });
-
-  return user;
+  return {
+    _id: user._id,
+    name: user.name,
+    email: user.name,
+    role: user.role,
+    mobile: user.mobile,
+  };
 };
 
 /**
- * Login with mobile
+ * Resend otp
  * @param {string} mobile
  * @returns {Promise<User>}
  */
-const resendAuthUserOtp = async (userId) => {
+const resendResetPasswordOtp = async (userId) => {
   logger.info('Inside login');
   const user = await userService.getUserById(userId);
 
   if (!user) {
     throw new apiError(httpStatus.NOT_FOUND, responseMessage.NO_USER_FOUND);
-  }
-
-  if (user.isReported) {
-    throw new apiError(httpStatus.CONFLICT, responseMessage.BLOCKED);
   }
 
   if (!user.otp) {
@@ -166,9 +159,35 @@ const resendAuthUserOtp = async (userId) => {
   return user;
 };
 
+const forgotPassword = async (mobile) => {
+  logger.info('Inside forgotPassword');
+  const user = await userService.getUserByMobile(mobile);
+
+  if (!user) {
+    throw new apiError(httpStatus.NOT_FOUND, responseMessage.NO_USER_FOUND);
+  }
+
+  const otp = randomNumberGenerator(4);
+  const otpExpiry = setTimeFactory(new Date(), +constant.TOKEN_EXPIRATION, ExpiryUnit.MINUTE);
+
+  /** update otp data */
+  await resourceRepo.updateOne(constant.COLLECTIONS.USER, {
+    query: {
+      _id: user._id,
+    },
+    data: {
+      otp: otp,
+      otpExpiry: otpExpiry,
+    },
+  });
+
+  return user;
+};
+
 module.exports = {
   register,
-  verifyAuthOtp,
+  resetPassword,
   login,
-  resendAuthUserOtp,
+  resendResetPasswordOtp,
+  forgotPassword,
 };

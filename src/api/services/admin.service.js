@@ -1,7 +1,6 @@
 const httpStatus = require('http-status');
 const userService = require('./user.service');
 const { logger, apiError, responseMessage, constant, UserRole } = require('../utils');
-const resourceRepo = require('../dataRepositories/resourceRepo');
 
 /**
  * Login with email and password

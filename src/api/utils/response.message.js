@@ -25,6 +25,7 @@ module.exports = {
   QUERY_ERROR_MSG: 'Something Went wrong',
   INVALID_CREDENTIAL: 401,
   INVALID_CREDENTIAL_MSG: 'Invalid credential. Please try again.',
+  INCORRECT_CURRENT_PASSWORD: 'Current password is wrong.',
   UNAUTHORIZE: 401,
   UNAUTHORIZE_MSG: 'Unauthorize User',
   BAD_REQUEST: 400,

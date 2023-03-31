@@ -1,10 +1,13 @@
 const Joi = require('joi');
 
-const validateMobile = {
+const login = {
   body: Joi.object()
     .keys({
       mobile: Joi.string().trim().required().messages({
         'any.required': 'Mobile number is required',
+      }),
+      password: Joi.string().trim().required().min(6).messages({
+        'any.required': `Password is required`,
       }),
     })
     .required(),
@@ -16,9 +19,12 @@ const signup = {
       name: Joi.string().trim().required().messages({
         'string.base': `Name must be string`,
       }),
-      email: Joi.string().trim().email().messages({
+      email: Joi.string().trim().email().required().messages({
         'string.base': `Email must be string`,
         'any.email': 'Email is not valid',
+      }),
+      password: Joi.string().trim().required().min(6).messages({
+        'any.required': `Password is required`,
       }),
       mobile: Joi.string().trim().required().messages({
         'any.required': `Please enter mobile number`,
@@ -67,7 +73,7 @@ const signup = {
     .oxor('bankAccountNumber', 'UPI'),
 };
 
-const verifyAuthOtp = {
+const resetPassword = {
   body: Joi.object()
     .keys({
       userId: Joi.string().trim().required().messages({
@@ -76,11 +82,24 @@ const verifyAuthOtp = {
       otp: Joi.string().trim().required().messages({
         'any.required': 'Otp is missing',
       }),
+      password: Joi.string().trim().required().min(6).messages({
+        'any.required': `Password is required`,
+      }),
     })
     .required(),
 };
 
-const resendAuthOtp = {
+const validateMobile = {
+  body: Joi.object()
+    .keys({
+      mobile: Joi.string().trim().required().messages({
+        'any.required': 'Mobile is missing',
+      }),
+    })
+    .required(),
+};
+
+const resendResetOtp = {
   body: Joi.object()
     .keys({
       userId: Joi.string().trim().required().messages({
@@ -92,7 +111,8 @@ const resendAuthOtp = {
 
 module.exports = {
   signup,
+  login,
+  resetPassword,
+  resendResetOtp,
   validateMobile,
-  verifyAuthOtp,
-  resendAuthOtp,
 };

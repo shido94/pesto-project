@@ -12,30 +12,36 @@ const register = catchAsync(async (req, res) => {
   return responseHandler.sendSuccess(res, httpStatus.OK, responseMessage.OTP_SENT, { userId: user._id });
 });
 
-const verifyAuthOtp = catchAsync(async (req, res) => {
+const forgotPassword = catchAsync(async (req, res) => {
+  const user = await authService.forgotPassword(req.body.mobile);
+
+  return responseHandler.sendSuccess(res, httpStatus.OK, responseMessage.SUCCESS, { userId: user._id });
+});
+
+const resetPassword = catchAsync(async (req, res) => {
   /** Verify otp */
-  const user = await authService.verifyAuthOtp(req.body);
+  await authService.resetPassword(req.body);
   logger.info('User created');
 
-  // /** Generate token */
-  const tokens = tokenService.generateAuthTokens(user._id);
-
-  return responseHandler.sendSuccess(res, httpStatus.OK, responseMessage.SUCCESS, { tokens, user });
+  return responseHandler.sendSuccess(res, httpStatus.OK, responseMessage.SUCCESS);
 });
 
 const login = catchAsync(async (req, res) => {
-  const { mobile } = req.body;
+  const { mobile, password } = req.body;
 
-  const user = await authService.login(mobile);
+  const user = await authService.login(mobile, password);
 
   logger.info('User found');
 
-  return responseHandler.sendSuccess(res, httpStatus.OK, responseMessage.OTP_SENT, { userId: user._id });
+  /** Generate token */
+  const tokens = tokenService.generateAuthTokens(user._id);
+
+  return responseHandler.sendSuccess(res, httpStatus.OK, responseMessage.OTP_SENT, { user, tokens });
 });
 
-const resendAuthOtp = catchAsync(async (req, res) => {
+const resendResetOtp = catchAsync(async (req, res) => {
   /** Verify otp */
-  const user = await authService.resendAuthUserOtp(req.body.userId);
+  const user = await authService.resendResetPasswordOtp(req.body.userId);
   logger.info('User otp generated');
 
   return responseHandler.sendSuccess(res, httpStatus.OK, responseMessage.SUCCESS, { userId: user._id });
@@ -44,6 +50,7 @@ const resendAuthOtp = catchAsync(async (req, res) => {
 module.exports = {
   login,
   register,
-  verifyAuthOtp,
-  resendAuthOtp,
+  forgotPassword,
+  resetPassword,
+  resendResetOtp,
 };
