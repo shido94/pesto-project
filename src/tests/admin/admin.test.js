@@ -5,9 +5,10 @@ const httpStatus = require('http-status');
 const { adminTokens } = require('../fixtures/token.fixtures');
 const {
   getProductBidHistoryByProductId,
-  getProductById,
   getUserProductById,
   getAllPendingProducts,
+  getCategoriesByQuery,
+  getProductsByQuery,
 } = require('../../api/services/product.service');
 const { getUserById } = require('../../api/services/user.service');
 const { OrderStatus, ProductBidStatus } = require('../../api/utils');
@@ -20,6 +21,9 @@ const AdminUrl = {
   MAKE_BID: apiPath + '/admin/products/bid',
   BLOCK_USER: apiPath + '/admin/users/block',
   PAY_USER: apiPath + '/admin/products/payout',
+  CATEGORY: apiPath + '/admin/products/category',
+  UPDATE_PICKUP_DATE: apiPath + '/admin/products/picked-up/date',
+  UPDATE_PICKUP: apiPath + '/admin/products/picked-up',
 };
 
 setupTestDB();
@@ -48,27 +52,6 @@ describe('Admin Routes', () => {
         .set('Authorization', `Bearer ${adminTokens.accessToken}`)
         .send()
         .expect(httpStatus.OK);
-    });
-  });
-
-  describe('make bid /admin/products/bid', () => {
-    test('Make first bid', async () => {
-      const { results } = await getAllPendingProducts({}, {});
-      const pendingProduct = results.filter(
-        (product) => product.bidStatus === ProductBidStatus.CREATED && product.bidHistory.length === 0,
-      );
-      if (pendingProduct.length) {
-        const bid = await getProductBidHistoryByProductId(pendingProduct[0]._id);
-        if (!bid) {
-          expect(bid).toBe(null);
-        } else {
-          await request(app)
-            .post(AdminUrl.MAKE_BID)
-            .set('Authorization', `Bearer ${adminTokens.accessToken}`)
-            .send({ productId, offeredAmount: 1000 })
-            .expect(httpStatus.OK);
-        }
-      }
     });
   });
 
@@ -120,6 +103,170 @@ describe('Admin Routes', () => {
           .set('Authorization', `Bearer ${adminTokens.accessToken}`)
           .send({ userId: userId, productId: productId })
           .expect(httpStatus.FORBIDDEN);
+      }
+    });
+  });
+
+  describe('Add Category /admin/products/category', () => {
+    let newCategory;
+
+    beforeEach(() => {
+      newCategory = {
+        name: 'TestCategory',
+        isActive: false,
+      };
+    });
+
+    test('Add test Category', async () => {
+      await request(app)
+        .post(AdminUrl.CATEGORY)
+        .set('Authorization', `Bearer ${adminTokens.accessToken}`)
+        .send(newCategory)
+        .expect(httpStatus.OK);
+    });
+  });
+
+  describe('Delete Category /admin/products/category', () => {
+    test('Delete 400 error if category is not valid', async () => {
+      await request(app)
+        .delete(AdminUrl.CATEGORY)
+        .set('Authorization', `Bearer ${adminTokens.accessToken}`)
+        .send({ categoryId: '63fcf605a381eaf81ee9cbba' })
+        .expect(httpStatus.BAD_REQUEST);
+    });
+
+    test('Delete test Category if category is valid', async () => {
+      const categories = await getCategoriesByQuery({
+        isActive: false,
+      });
+
+      if (categories.length) {
+        await request(app)
+          .delete(AdminUrl.CATEGORY)
+          .set('Authorization', `Bearer ${adminTokens.accessToken}`)
+          .send({ categoryId: categories[0]._id.toString() })
+          .expect(httpStatus.OK);
+      }
+    });
+  });
+
+  describe('make bid /admin/products/bid', () => {
+    test('Make first bid', async () => {
+      const { results } = await getAllPendingProducts({}, {});
+      const pendingProduct = results.filter(
+        (product) => product.bidStatus === ProductBidStatus.CREATED && product.bidHistory.length === 0,
+      );
+      if (pendingProduct.length) {
+        await request(app)
+          .post(AdminUrl.MAKE_BID)
+          .set('Authorization', `Bearer ${adminTokens.accessToken}`)
+          .send({ productId: pendingProduct[0]._id.toString(), offeredAmount: 1000 })
+          .expect(httpStatus.OK);
+      }
+    });
+  });
+
+  describe('Change Pick-up date status after bid accepted', () => {
+    test('Update Pickup 404 error if product is not found', async () => {
+      await request(app)
+        .put(AdminUrl.UPDATE_PICKUP_DATE)
+        .set('Authorization', `Bearer ${adminTokens.accessToken}`)
+        .send({ productId: '63fcf605a381eaf81ee9cbba', estimatedPickedUpDate: '20 Nov 2022' })
+        .expect(httpStatus.NOT_FOUND);
+    });
+
+    test('Return 400 error if product bid is pending', async () => {
+      const { results } = await getAllPendingProducts({}, {});
+      const pendingProduct = results.filter((product) => product.bidStatus === ProductBidStatus.CREATED);
+
+      if (pendingProduct.length) {
+        await request(app)
+          .put(AdminUrl.UPDATE_PICKUP_DATE)
+          .set('Authorization', `Bearer ${adminTokens.accessToken}`)
+          .send({ productId: pendingProduct[0]._id.toString(), estimatedPickedUpDate: '20 Nov 2022' })
+          .expect(httpStatus.BAD_REQUEST);
+      }
+    });
+
+    test('Return 400 error if the product is already picked-up', async () => {
+      const products = await getProductsByQuery({
+        orderStatus: { $in: [OrderStatus.PICKED_UP, OrderStatus.PAID] },
+      });
+
+      if (products.length) {
+        await request(app)
+          .put(AdminUrl.UPDATE_PICKUP_DATE)
+          .set('Authorization', `Bearer ${adminTokens.accessToken}`)
+          .send({ productId: products[0]._id.toString(), estimatedPickedUpDate: '20 Nov 2022' })
+          .expect(httpStatus.BAD_REQUEST);
+      }
+    });
+
+    test('Update pick-up date 200 if the data is valid', async () => {
+      const products = await getProductsByQuery({
+        bidStatus: ProductBidStatus.ACCEPTED,
+        orderStatus: { $in: [OrderStatus.PENDING, OrderStatus.PICKED_UP_DATE_ESTIMATED] },
+      });
+
+      if (products.length) {
+        await request(app)
+          .put(AdminUrl.UPDATE_PICKUP_DATE)
+          .set('Authorization', `Bearer ${adminTokens.accessToken}`)
+          .send({ productId: products[0]._id.toString(), estimatedPickedUpDate: '20 Nov 2022' })
+          .expect(httpStatus.OK);
+      }
+    });
+  });
+
+  describe('Update Pickup status ', () => {
+    test('Return 404 error if product is not found', async () => {
+      await request(app)
+        .put(AdminUrl.UPDATE_PICKUP)
+        .set('Authorization', `Bearer ${adminTokens.accessToken}`)
+        .send({ productId: '63fcf605a381eaf81ee9cbba' })
+        .expect(httpStatus.NOT_FOUND);
+    });
+
+    test('Return 400 error if product bid is pending', async () => {
+      const { results } = await getAllPendingProducts({}, {});
+      const pendingProduct = results.filter((product) => product.bidStatus === ProductBidStatus.CREATED);
+
+      if (pendingProduct.length) {
+        await request(app)
+          .put(AdminUrl.UPDATE_PICKUP)
+          .set('Authorization', `Bearer ${adminTokens.accessToken}`)
+          .send({ productId: pendingProduct[0]._id.toString() })
+          .expect(httpStatus.BAD_REQUEST);
+      }
+    });
+
+    test('Return 400 error if the product is already picked-up', async () => {
+      const products = await getProductsByQuery({
+        bidStatus: ProductBidStatus.ACCEPTED,
+        orderStatus: { $ne: OrderStatus.PICKED_UP_DATE_ESTIMATED },
+      });
+
+      if (products.length) {
+        await request(app)
+          .put(AdminUrl.UPDATE_PICKUP)
+          .set('Authorization', `Bearer ${adminTokens.accessToken}`)
+          .send({ productId: products[0]._id.toString() })
+          .expect(httpStatus.BAD_REQUEST);
+      }
+    });
+
+    test('Update Order pick-up status 200 if the data is valid', async () => {
+      const products = await getProductsByQuery({
+        bidStatus: ProductBidStatus.ACCEPTED,
+        orderStatus: { $eq: OrderStatus.PICKED_UP_DATE_ESTIMATED },
+      });
+
+      if (products.length) {
+        await request(app)
+          .put(AdminUrl.UPDATE_PICKUP)
+          .set('Authorization', `Bearer ${adminTokens.accessToken}`)
+          .send({ productId: products[0]._id.toString() })
+          .expect(httpStatus.OK);
       }
     });
   });

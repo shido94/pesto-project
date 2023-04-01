@@ -258,6 +258,7 @@ router.put(
  *         type: object
  *         required:
  *           - name
+ *           - isActive
  *         properties:
  *           parentId:
  *             type: string
@@ -265,6 +266,9 @@ router.put(
  *             type: string
  *           logo:
  *             type: string
+ *           isActive:
+ *             type: boolean
+ *             default: true
  *     responses:
  *       200:
  *         description: Return Message

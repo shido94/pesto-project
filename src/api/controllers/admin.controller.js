@@ -73,7 +73,7 @@ const makePayoutToUser = catchAsync(async (req, res) => {
 
 const addCategory = catchAsync(async (req, res) => {
   /** Add user to DB */
-  const body = pick(req.body, ['name', 'parentId', 'logo']);
+  const body = pick(req.body, ['name', 'parentId', 'logo', 'isActive']);
 
   await productService.addCategory(body);
 

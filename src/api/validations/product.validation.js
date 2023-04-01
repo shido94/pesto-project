@@ -129,6 +129,9 @@ const addCategory = {
     name: Joi.string().trim().required().messages({
       'any.required': `Name is required`,
     }),
+    isActive: Joi.boolean().required().messages({
+      'any.required': `Active status is required`,
+    }),
     parentId: Joi.string(),
     logo: Joi.string(),
   }),

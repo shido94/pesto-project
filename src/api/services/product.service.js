@@ -39,6 +39,22 @@ const getCategories = async () => {
 };
 
 /**
+ * Get All Categories query
+ * @returns {Promise<Category>}
+ */
+const getCategoriesByQuery = async (query) => {
+  return resourceRepo.find(constant.COLLECTIONS.CATEGORY, { query });
+};
+
+/**
+ * Get All Products by query
+ * @returns {Promise<Products>}
+ */
+const getProductsByQuery = async (query) => {
+  return resourceRepo.find(constant.COLLECTIONS.PRODUCT, { query });
+};
+
+/**
  * Get category by id
  * @returns {Promise<Category>}
  */
@@ -703,20 +719,20 @@ const updatePickUpDate = async (userId, body) => {
 
   /** Check if product exist */
   if (!product) {
-    logger.error('Invalid product id => ', id);
+    logger.error('Invalid product id => ', body.productId);
     throw new apiError(httpStatus.NOT_FOUND, responseMessage.PRODUCT_NOT_FOUND);
   }
 
   /** Check if product amount has been accepted */
   if (product.bidStatus !== ProductBidStatus.ACCEPTED) {
-    logger.error(responseMessage.PRODUCT_NOT_ACCEPTED, id);
-    throw new apiError(httpStatus.NOT_FOUND, responseMessage.PRODUCT_NOT_ACCEPTED);
+    logger.error(responseMessage.PRODUCT_NOT_ACCEPTED, body.productId);
+    throw new apiError(httpStatus.BAD_REQUEST, responseMessage.PRODUCT_NOT_ACCEPTED);
   }
 
   /** Check if order is still in pending state */
   if (![OrderStatus.PENDING, OrderStatus.PICKED_UP_DATE_ESTIMATED].includes(product.orderStatus)) {
-    logger.error('Invalid product id => ', id);
-    throw new apiError(httpStatus.NOT_FOUND, responseMessage.PRODUCT_NOT_FOUND);
+    logger.error('Invalid product id => ', body.productId);
+    throw new apiError(httpStatus.BAD_REQUEST, responseMessage.PRODUCT_NOT_FOUND);
   }
 
   const query = {
@@ -743,20 +759,20 @@ const orderPickedUp = async (userId, body) => {
 
   /** Check if product exist */
   if (!product) {
-    logger.info('Invalid product id => ', id);
+    logger.info('Invalid product id => ', body.productId);
     throw new apiError(httpStatus.NOT_FOUND, responseMessage.PRODUCT_NOT_FOUND);
   }
 
   /** Check if product amount has been accepted */
   if (product.bidStatus !== ProductBidStatus.ACCEPTED) {
-    logger.error('Product has been accepted yet => ');
-    throw new apiError(httpStatus.NOT_FOUND, responseMessage.PRODUCT_NOT_ACCEPTED);
+    logger.error('Product has been accepted yet');
+    throw new apiError(httpStatus.BAD_REQUEST, responseMessage.PRODUCT_NOT_ACCEPTED);
   }
 
   /** Check if order is still in pending state */
   if (product.orderStatus !== OrderStatus.PICKED_UP_DATE_ESTIMATED) {
     logger.error(`Order status is = `, product.orderStatus);
-    throw new apiError(httpStatus.NOT_FOUND, responseMessage.PICKED_UP_NOT_ESTIMATED);
+    throw new apiError(httpStatus.BAD_REQUEST, responseMessage.PICKED_UP_NOT_ESTIMATED);
   }
 
   const query = {
@@ -843,6 +859,7 @@ const addCategory = async (body) => {
     parentId: body.parentId,
     name: body.name,
     logo: body.logo,
+    isActive: body.isActive,
   };
 
   return resourceRepo.create(constant.COLLECTIONS.CATEGORY, { data });
@@ -856,7 +873,7 @@ const addCategory = async (body) => {
 const deleteCategory = async ({ categoryId }) => {
   const category = await getCategoryById(categoryId);
   if (!category) {
-    logger.error(`Invalid parent category id`);
+    logger.error(`Invalid category id`);
     throw new apiError(httpStatus.BAD_REQUEST, responseMessage.INVALID_CATEGORY);
   }
 
@@ -889,4 +906,6 @@ module.exports = {
   getProductBidHistoryByProductId,
   addCategory,
   deleteCategory,
+  getCategoriesByQuery,
+  getProductsByQuery,
 };

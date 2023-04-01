@@ -23,7 +23,7 @@ describe('Auth Routes', () => {
 
     beforeEach(() => {
       newUser = {
-        name: faker.internet.userName(),
+        name: 'TestRupeshTesting',
         email: faker.internet.email().toLowerCase(),
         mobile: `${faker.datatype.number({
           min: 6000000000,
