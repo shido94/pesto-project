@@ -278,8 +278,6 @@ router.put(
  *  /users/image:
  *   post:
  *     tags: [Users]
- *     security:
- *          - Bearer: []
  *     description: Upload files
  *     produces:
  *       - application/json
@@ -292,7 +290,7 @@ router.put(
  *       200:
  *         description: Return Message
  */
-router.post('/image', auth(UserRole.USER, UserRole.ADMIN), uploadMany, userController.uploadImages);
+router.post('/image', uploadMany, userController.uploadImages);
 
 /**
  * @swagger
