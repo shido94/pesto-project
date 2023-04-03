@@ -229,11 +229,20 @@ function getProductsQuery(args) {
   if (args.orderStatus) {
     filter.orderStatus = +args.orderStatus;
   }
-  if (args.minPrice > -1 && args.maxPrice > args.minPrice) {
-    filter.acceptedAmount = {
-      $lte: args.maxPrice,
-      $gte: args.minPrice,
-    };
+  if (args.minPrice || args.maxPrice) {
+    const min = args.minPrice > -1 ? args.minPrice : 0;
+
+    const query = {};
+
+    if (min) {
+      query['$gte'] = +min;
+    }
+
+    if (args.maxPrice) {
+      query['$lte'] = +args.maxPrice;
+    }
+
+    filter.acceptedAmount = query;
   }
 
   return filter;
@@ -254,19 +263,19 @@ const getProductsAggregateQuery = (filter) => {
     $match: filter,
   });
 
-  /**
-   * Get Category detail
-   */
-  query.push(categoryLookupQuery());
-  query.push({ $unwind: '$category' });
+  // /**
+  //  * Get Category detail
+  //  */
+  // query.push(categoryLookupQuery());
+  // query.push({ $unwind: '$category' });
 
-  /**
-   * Get Created by details
-   */
-  query.push(creatorLookupQuery());
-  query.push({ $unwind: '$createdByDetails' });
+  // /**
+  //  * Get Created by details
+  //  */
+  // query.push(creatorLookupQuery());
+  // query.push({ $unwind: '$createdByDetails' });
 
-  query.push(changeHistoryLookupQuery());
+  // query.push(changeHistoryLookupQuery());
 
   query.push({ $sort: { updatedAt: -1 } });
 
