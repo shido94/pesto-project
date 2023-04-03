@@ -165,7 +165,12 @@ router.put('/mobile', auth(UserRole.USER), validate(userValidation.updateMobile)
  *       200:
  *         description: Return User and Token
  */
-router.post('/verify-mobile-otp', validate(authValidation.verifyUserOtp), userController.verifyAuthOtp);
+router.post(
+  '/verify-mobile-otp',
+  validate(userValidation.verifyUserOtp),
+  auth(UserRole.USER),
+  userController.verifyAuthOtp,
+);
 
 /**
  * @swagger

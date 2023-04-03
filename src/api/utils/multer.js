@@ -17,7 +17,7 @@ const storage = multerS3({
 function renameWithExt(req, file) {
   const ext = file.mimetype.split('/')[1]; // parse the extension type
 
-  const name = req.user.sub + new Date().getTime() + random.randomToken().replace('.', '') + `.${ext}`;
+  const name = new Date().getTime() + random.randomToken().replace('.', '') + `.${ext}`;
   return name;
 }
 
