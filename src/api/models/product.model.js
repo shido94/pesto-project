@@ -32,10 +32,10 @@ const productSchema = Schema(
       type: String,
     },
     offeredAmount: {
-      type: String,
+      type: Number,
     },
     acceptedAmount: {
-      type: String,
+      type: Number,
     },
     priceAcceptedBy: {
       type: Schema.Types.ObjectId,
