@@ -265,12 +265,6 @@ const updateUserMobile = async (userId, body) => {
     throw new apiError(httpStatus.FORBIDDEN, responseMessage.MOBILE_EXIST);
   }
 
-  const query = {
-    _id: ObjectId(userId),
-  };
-
-  await resourceRepo.updateOne(constant.COLLECTIONS.USER, { query, data: { tempMobile: body.mobile } });
-
   const otp = randomNumberGenerator(4);
   const otpExpiry = setTimeFactory(new Date(), +constant.TOKEN_EXPIRATION, ExpiryUnit.MINUTE);
 
@@ -280,6 +274,7 @@ const updateUserMobile = async (userId, body) => {
       _id: user._id,
     },
     data: {
+      tempMobile: body.mobile,
       updateMobileOtp: otp,
       updateMobileOtpExpiry: otpExpiry,
     },
@@ -337,6 +332,35 @@ const verifyUpdateMobileOtp = async (userId, otp) => {
   } catch (error) {
     throw error;
   }
+};
+
+/**
+ * Update user profile
+ * @param {String} userId - user id
+ * @param {Object} profile
+ * @returns {Promise<User>}
+ */
+const resendMobileChangeOtp = async (userId) => {
+  const user = await getUserById(userId);
+
+  if (!user.updateMobileOtp || !user.updateMobileOtpExpiry || !user.tempMobile) {
+    logger.error('Can not send mobile change otp');
+    throw new apiError(httpStatus.BAD_GATEWAY, responseMessage.INVALID_REQUEST);
+  }
+
+  const otp = randomNumberGenerator(4);
+  const otpExpiry = setTimeFactory(new Date(), +constant.TOKEN_EXPIRATION, ExpiryUnit.MINUTE);
+
+  /** update otp data */
+  await resourceRepo.updateOne(constant.COLLECTIONS.USER, {
+    query: {
+      _id: user._id,
+    },
+    data: {
+      updateMobileOtp: otp,
+      updateMobileOtpExpiry: otpExpiry,
+    },
+  });
 };
 
 /**
@@ -416,4 +440,5 @@ module.exports = {
   updateFund,
   getUserByEmailOrMobile,
   updateNewPassword,
+  resendMobileChangeOtp,
 };

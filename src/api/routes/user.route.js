@@ -169,8 +169,24 @@ router.post(
   '/verify-mobile-otp',
   validate(userValidation.verifyUserOtp),
   auth(UserRole.USER),
-  userController.verifyAuthOtp,
+  userController.verifyMobileUpdateOtp,
 );
+
+/**
+ * @swagger
+ * /users/resend-mobile-otp:
+ *   get:
+ *     tags:
+ *       - Users
+ *     produces:
+ *       - application/json
+ *     security:
+ *          - Bearer: []
+ *     responses:
+ *       200:
+ *         description: Return User and Token
+ */
+router.get('/resend-mobile-otp', auth(UserRole.USER), userController.resendChangeMobileOtp);
 
 /**
  * @swagger

@@ -56,10 +56,18 @@ const updateMobile = catchAsync(async (req, res) => {
   return responseHandler.sendSuccess(res, httpStatus.OK, responseMessage.SUCCESS);
 });
 
-const verifyAuthOtp = catchAsync(async (req, res) => {
+const verifyMobileUpdateOtp = catchAsync(async (req, res) => {
   /** Verify otp */
   await userService.verifyUpdateMobileOtp(req.user.sub, req.body.otp);
-  logger.info('User created');
+  logger.info('Mobile number updated');
+
+  return responseHandler.sendSuccess(res, httpStatus.OK, responseMessage.SUCCESS);
+});
+
+const resendChangeMobileOtp = catchAsync(async (req, res) => {
+  /** Verify otp */
+  await userService.resendMobileChangeOtp(req.user.sub);
+  logger.info('Otp generated');
 
   return responseHandler.sendSuccess(res, httpStatus.OK, responseMessage.SUCCESS);
 });
@@ -138,7 +146,7 @@ module.exports = {
   getUserProducts,
   updateProfile,
   updateMobile,
-  verifyAuthOtp,
+  verifyMobileUpdateOtp,
   updateFundDetails,
   uploadImages,
   getNotifications,
@@ -146,4 +154,5 @@ module.exports = {
   deleteNotification,
   deleteAllNotification,
   updatePassword,
+  resendChangeMobileOtp,
 };
