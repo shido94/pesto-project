@@ -1,7 +1,7 @@
 const twilio = require('twilio');
-const { constant } = require('../utils');
+const constant = require('../utils/constant');
 
-// const client = twilio(constant.TWILIO.ACCOUNT_SID, constant.TWILIO.AUTH_TOKEN);
+const client = twilio(constant.TWILIO.ACCOUNT_SID, constant.TWILIO.AUTH_TOKEN);
 
 /**
  * Send an email
@@ -11,8 +11,8 @@ const { constant } = require('../utils');
  * @returns {Promise}
  */
 const sendOTP = async (body, to, from = constant.TWILIO.MOBILE_NUMBER) => {
-  // const otpMsg = { from, to, body };
-  // return client.messages.create(otpMsg);
+  const otpMsg = { from, to, body };
+  return client.messages.create(otpMsg);
 };
 
 module.exports = { sendOTP };
