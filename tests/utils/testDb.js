@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { constant } = require('../../api/utils');
+const { constant } = require('../../src/api/utils');
 
 const setupTestDB = () => {
   beforeAll(async () => {

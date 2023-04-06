@@ -1,6 +1,7 @@
 const httpStatus = require('http-status');
 const userService = require('./user.service');
-const { logger, apiError, responseMessage, constant, UserRole } = require('../utils');
+const { logger, apiError, responseMessage, UserRole } = require('../utils');
+const tokenService = require('./token.service');
 
 /**
  * Login with email and password
@@ -22,12 +23,17 @@ const login = async (email, password) => {
     throw new apiError(httpStatus.UNAUTHORIZED, responseMessage.INVALID_CREDENTIAL_MSG);
   }
 
+  const tokens = tokenService.generateAuthTokens(user._id, user.role);
+
   return {
-    _id: user._id,
-    name: user.name,
-    email: user.name,
-    role: user.role,
-    mobile: user.mobile,
+    tokens,
+    user: {
+      _id: user._id,
+      name: user.name,
+      email: user.name,
+      role: user.role,
+      mobile: user.mobile,
+    },
   };
 };
 

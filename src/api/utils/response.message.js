@@ -40,4 +40,5 @@ module.exports = {
   MOBILE_EXIST: 'This mobile number is already registered with different user',
   NOTIFICATION_DELETE: 'Notification has been deleted',
   NOTIFICATIONS_DELETE: 'Notifications have been deleted',
+  INVALID_TOKEN: 'Token has been expired',
 };

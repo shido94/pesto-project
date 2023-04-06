@@ -2,16 +2,12 @@ const httpStatus = require('http-status');
 const { catchAsync, pick, responseMessage, logger } = require('../utils');
 const { adminService, userService, productService } = require('../services');
 const { responseHandler } = require('../handlers');
-const { tokenService } = require('../services');
 
 const login = catchAsync(async (req, res) => {
   const { email, password } = req.body;
 
-  const user = await adminService.login(email, password);
+  const { user, tokens } = await adminService.login(email, password);
   logger.info('User found');
-
-  // /** Generate token */
-  const tokens = tokenService.generateAuthTokens(user._id, user.role);
 
   return responseHandler.sendSuccess(res, httpStatus.OK, responseMessage.SUCCESS, { tokens, user });
 });

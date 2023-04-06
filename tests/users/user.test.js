@@ -1,11 +1,11 @@
 const request = require('supertest');
-const app = require('../../api/server/index');
+const app = require('../../src/api/server/index');
 const setupTestDB = require('../utils/testDb');
 const httpStatus = require('http-status');
 const { faker } = require('@faker-js/faker/locale/de');
 const { adminTokens, userTokens } = require('../fixtures/token.fixtures');
-const { getNotificationById } = require('../../api/services/notification.service');
-const { getUserByEmailOrMobile } = require('../../api/services/user.service');
+const { getNotificationById } = require('../../src/api/services/notification.service');
+const { getUserByEmailOrMobile } = require('../../src/api/services/user.service');
 const apiPath = '/api/v1';
 
 const UserUrl = {

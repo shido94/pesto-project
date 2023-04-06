@@ -21,5 +21,14 @@ module.exports = (function () {
     S3_SECRET_KEY: process.env.S3_SECRET_KEY,
     S3_REGION: process.env.S3_REGION,
     S3_BUCKET_NAME: process.env.S3_BUCKET_NAME,
+    SMTP_HOST: process.env.SMTP_HOST,
+    SMTP_PORT: process.env.SMTP_PORT,
+    SMTP_SERVICE: process.env.SMTP_SERVICE,
+    SMTP_USER: process.env.SMTP_USER,
+    SMTP_PASS: process.env.SMTP_PASS,
+    SMTP_EMAIL: process.env.SMTP_EMAIL,
+    TWILIO_SID: process.env.TWILIO_SID,
+    TWILIO_TOKEN: process.env.TWILIO_TOKEN,
+    TWILIO_MOBILE: process.env.TWILIO_MOBILE,
   };
 })();

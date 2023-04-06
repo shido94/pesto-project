@@ -669,7 +669,7 @@ const updateBid = async (user, body) => {
 
     if (String(bid.bidCreatedBy) === user.sub || ![ProductBidStatus.CREATED].includes(bid.bidStatus)) {
       logger.info('Invalid user => ', user.sub);
-      throw new apiError(httpStatus.FORBIDDEN, responseMessage.BID_NOT_ALLOWED);
+      throw new apiError(httpStatus.BAD_REQUEST, responseMessage.BID_NOT_ALLOWED);
     }
 
     if (body.status === ProductBidStatus.MODIFIED) {
@@ -821,20 +821,20 @@ const makePayoutToUser = async (paidBy, body) => {
   /** Check if order is still in pending state */
   if (product.orderStatus === OrderStatus.PAID) {
     logger.error(`Order status is = `, product.orderStatus);
-    throw new apiError(httpStatus.FORBIDDEN, responseMessage.PRODUCT_PAID);
+    throw new apiError(httpStatus.BAD_REQUEST, responseMessage.PRODUCT_PAID);
   }
 
   /** Check if order is still in pending state */
   if (product.orderStatus !== OrderStatus.PICKED_UP) {
     logger.error(`Order status is = `, product.orderStatus);
-    throw new apiError(httpStatus.FORBIDDEN, responseMessage.PRODUCT_NOT_PICKED);
+    throw new apiError(httpStatus.BAD_REQUEST, responseMessage.PRODUCT_NOT_PICKED);
   }
 
   const user = await getUserById(paidBy);
 
   if (!user || !user.bankAccountNumber || !user.UPI) {
     logger.error(`Funds account pending`);
-    throw new apiError(httpStatus.FORBIDDEN, responseMessage.BANK_DETAIL_MISSING);
+    throw new apiError(httpStatus.BAD_REQUEST, responseMessage.BANK_DETAIL_MISSING);
   }
 
   const payment = await paymentService.createPayment(paidBy, product);

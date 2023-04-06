@@ -1,17 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { constant, UserRole } = require('../utils');
-
-/**
- * Generate token
- * @param {ObjectId} userId
- * @param {Moment} expires
- * @param {string} type
- * @param {string} [secret]
- * @returns {string}
- */
-const generateToken = ({ payload, secret = constant.ACCESS_TOKEN_SECRET, options }) => {
-  return jwt.sign(payload, secret, options);
-};
+const { constant, UserRole, generateToken, verifyToken } = require('../utils');
 
 /**
  * Generate auth tokens
@@ -24,15 +12,12 @@ const generateAuthTokens = (userId, role = UserRole.USER) => {
     role: role,
   };
 
-  const accessToken = generateToken({
-    payload,
-    options: { expiresIn: constant.ACCESS_TOKEN_EXPIRATION },
+  const accessToken = generateToken(payload, constant.ACCESS_TOKEN_SECRET, {
+    expiresIn: constant.ACCESS_TOKEN_EXPIRATION,
   });
 
-  const refreshToken = generateToken({
-    payload,
-    secret: constant.REFRESH_TOKEN_SECRET,
-    options: { expiresIn: constant.REFRESH_TOKEN_EXPIRATION },
+  const refreshToken = generateToken(payload, constant.REFRESH_TOKEN_SECRET, {
+    expiresIn: constant.REFRESH_TOKEN_EXPIRATION,
   });
 
   return {
@@ -41,7 +26,17 @@ const generateAuthTokens = (userId, role = UserRole.USER) => {
   };
 };
 
+/**
+ * Generate auth tokens
+ * @param {User} user
+ * @returns {Promise<Object>}
+ */
+const verifyRefreshToken = (token) => {
+  return verifyToken(token, constant.REFRESH_TOKEN_SECRET);
+};
+
 module.exports = {
   generateToken,
   generateAuthTokens,
+  verifyRefreshToken,
 };

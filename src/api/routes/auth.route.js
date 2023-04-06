@@ -19,7 +19,7 @@ const { authValidation } = require('../validations');
  *     parameters:
  *     - name: body
  *       in: body
- *       description: Login using Mobile
+ *       description: Login using Email/Mobile
  *       required: true
  *       schema:
  *         type: object
@@ -29,6 +29,9 @@ const { authValidation } = require('../validations');
  *           mobile:
  *             type: string
  *             default: 5555555555
+ *           email:
+ *             type: string
+ *             default: rupesh@yopmail.com
  *           password:
  *             type: string
  *             default: Test@1234
@@ -134,11 +137,14 @@ router.post('/signup', validate(authValidation.signup), authController.register)
  *           mobile:
  *             type: string
  *             default: 5555555555
+ *           email:
+ *             type: string
+ *             default: rupesh@yopmail.com
  *     responses:
  *       200:
  *         description: Return User and Token
  */
-router.post('/forgot-password', validate(authValidation.validateMobile), authController.forgotPassword);
+router.post('/forgot-password', validate(authValidation.forgotPassword), authController.forgotPassword);
 
 /**
  * @swagger
@@ -201,5 +207,31 @@ router.post('/reset-password', validate(authValidation.resetPassword), authContr
  *         description: Return User and Token
  */
 router.post('/resend-otp', validate(authValidation.resendResetOtp), authController.resendResetOtp);
+
+/**
+ * @swagger
+ * /auth/refresh-token:
+ *   post:
+ *     tags:
+ *       - Auth
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *     - name: body
+ *       in: body
+ *       description: Generate refresh token
+ *       required: true
+ *       schema:
+ *         type: object
+ *         required:
+ *           - token
+ *         properties:
+ *           token:
+ *             type: string
+ *     responses:
+ *       200:
+ *         description: Return User and Token
+ */
+router.post('/refresh-token', validate(authValidation.refreshToken), authController.getRefreshToken);
 
 module.exports = router;

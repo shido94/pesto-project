@@ -12,6 +12,9 @@ const {
   UserRole,
 } = require('../utils');
 const resourceRepo = require('../dataRepositories/resourceRepo');
+const { forgotPasswordOtp } = require('./otp.service');
+const { sendForgotPasswordOtp } = require('./email.service');
+const tokenService = require('./token.service');
 
 /**
  * Register user
@@ -95,13 +98,14 @@ const resetPassword = async ({ userId, otp, password }) => {
 
 /**
  * Login with mobile and password
- * @param {string} mobile
- * @param {string} password
+ * @param {Object} body
  * @returns {Promise<User>}
  */
-const login = async (mobile, password) => {
+const login = async (body) => {
+  const { mobile, email, password } = body;
+
   logger.info('Inside login');
-  const user = await userService.getUserByMobile(mobile);
+  const user = await userService.getUserByEmailOrMobile(email, mobile);
 
   if (!user) {
     throw new apiError(httpStatus.NOT_FOUND, responseMessage.NO_USER_FOUND);
@@ -116,12 +120,17 @@ const login = async (mobile, password) => {
     throw new apiError(httpStatus.BAD_REQUEST, responseMessage.INVALID_CREDENTIAL_MSG);
   }
 
+  const tokens = tokenService.generateAuthTokens(user._id);
+
   return {
-    _id: user._id,
-    name: user.name,
-    email: user.name,
-    role: user.role,
-    mobile: user.mobile,
+    tokens,
+    user: {
+      _id: user._id,
+      name: user.name,
+      email: user.name,
+      role: user.role,
+      mobile: user.mobile,
+    },
   };
 };
 
@@ -159,9 +168,10 @@ const resendResetPasswordOtp = async (userId) => {
   return user;
 };
 
-const forgotPassword = async (mobile) => {
+const forgotPassword = async (body) => {
+  const { email, mobile } = body;
   logger.info('Inside forgotPassword');
-  const user = await userService.getUserByMobile(mobile);
+  const user = await userService.getUserByEmailOrMobile(email, mobile);
 
   if (!user) {
     throw new apiError(httpStatus.NOT_FOUND, responseMessage.NO_USER_FOUND);
@@ -169,6 +179,12 @@ const forgotPassword = async (mobile) => {
 
   const otp = randomNumberGenerator(4);
   const otpExpiry = setTimeFactory(new Date(), +constant.TOKEN_EXPIRATION, ExpiryUnit.MINUTE);
+
+  if (mobile) {
+    forgotPasswordOtp(mobile, otp);
+  } else {
+    sendForgotPasswordOtp(user, otp);
+  }
 
   /** update otp data */
   await resourceRepo.updateOne(constant.COLLECTIONS.USER, {
@@ -184,10 +200,35 @@ const forgotPassword = async (mobile) => {
   return user;
 };
 
+/**
+ * Resend otp
+ * @param {string} mobile
+ * @returns {Promise<User>}
+ */
+const refreshAuthToken = async (token) => {
+  logger.info('Inside login');
+
+  try {
+    const tokenData = await tokenService.verifyRefreshToken(token);
+    console.log(tokenData);
+
+    const user = userService.getUserById(tokenData.sub);
+    if (!user) {
+      throw new apiError(httpStatus.UNAUTHORIZED, responseMessage.OTP_EXPIRED);
+    }
+
+    return tokenService.generateAuthTokens(user._id);
+  } catch (error) {
+    logger.error(error);
+    throw new apiError(httpStatus.UNAUTHORIZED, responseMessage.INVALID_TOKEN);
+  }
+};
+
 module.exports = {
   register,
   resetPassword,
   login,
   resendResetPasswordOtp,
   forgotPassword,
+  refreshAuthToken,
 };

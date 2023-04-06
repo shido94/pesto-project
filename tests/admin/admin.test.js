@@ -102,7 +102,7 @@ describe('Admin Routes', () => {
           .put(AdminUrl.PAY_USER)
           .set('Authorization', `Bearer ${adminTokens.accessToken}`)
           .send({ userId: userId, productId: productId })
-          .expect(httpStatus.FORBIDDEN);
+          .expect(httpStatus.BAD_REQUEST);
       }
     });
   });

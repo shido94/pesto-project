@@ -6,8 +6,8 @@ module.exports = {
   DATABASE: config.DATABASE,
   ACCESS_TOKEN_SECRET: config.ACCESS_TOKEN_SECRET,
   REFRESH_TOKEN_SECRET: config.REFRESH_TOKEN_SECRET,
-  ACCESS_TOKEN_EXPIRATION: '7d',
-  REFRESH_TOKEN_EXPIRATION: '30d',
+  ACCESS_TOKEN_EXPIRATION: '1d',
+  REFRESH_TOKEN_EXPIRATION: '2d',
   TOKEN_EXPIRATION: 5 /** In minutes */,
 
   RAZOR_PAY: {
@@ -19,10 +19,19 @@ module.exports = {
 
   FAKE_OTP: '1234',
 
+  MAIL: {
+    HOST: config.SMTP_HOST,
+    PORT: config.SMTP_PORT,
+    SERVICE: config.SMTP_SERVICE,
+    SMTP_USER: config.SMTP_USER,
+    SMTP_PASS: config.SMTP_PASS,
+    SMTP_EMAIL: config.SMTP_EMAIL,
+  },
+
   TWILIO: {
-    ACCOUNT_SID: '',
-    AUTH_TOKEN: '',
-    MOBILE_NUMBER: '',
+    ACCOUNT_SID: config.TWILIO_SID,
+    AUTH_TOKEN: config.TWILIO_TOKEN,
+    MOBILE_NUMBER: config.TWILIO_MOBILE,
   },
   COLLECTIONS: {
     USER: 'User',
@@ -42,4 +51,5 @@ module.exports = {
     BUCKET_NAME: config.S3_BUCKET_NAME,
     LOCATION: 'https://sell-it-bucket.s3.ap-northeast-1.amazonaws.com',
   },
+  ENV: config.ENV,
 };

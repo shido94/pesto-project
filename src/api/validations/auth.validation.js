@@ -3,13 +3,17 @@ const Joi = require('joi');
 const login = {
   body: Joi.object()
     .keys({
-      mobile: Joi.string().trim().required().messages({
+      mobile: Joi.string().trim().messages({
         'any.required': 'Mobile number is required',
       }),
-      password: Joi.string().trim().required().min(6).messages({
+      email: Joi.string().email().messages({
+        'any.required': 'Email is required',
+      }),
+      password: Joi.string().trim().required().messages({
         'any.required': `Password is required`,
       }),
     })
+    .xor('email', 'mobile')
     .required(),
 };
 
@@ -89,14 +93,17 @@ const resetPassword = {
     .required(),
 };
 
-const validateMobile = {
+const forgotPassword = {
   body: Joi.object()
     .keys({
-      mobile: Joi.string().trim().required().messages({
-        'any.required': 'Mobile is missing',
+      mobile: Joi.string().trim().messages({
+        'any.required': 'Please enter a valid mobile number',
+      }),
+      email: Joi.string().email().messages({
+        'any.required': 'Please enter a valid email',
       }),
     })
-    .required(),
+    .xor('email', 'mobile'),
 };
 
 const resendResetOtp = {
@@ -109,10 +116,21 @@ const resendResetOtp = {
     .required(),
 };
 
+const refreshToken = {
+  body: Joi.object()
+    .keys({
+      token: Joi.string().trim().required().messages({
+        'any.required': 'Refresh token is missing',
+      }),
+    })
+    .required(),
+};
+
 module.exports = {
   signup,
   login,
   resetPassword,
   resendResetOtp,
-  validateMobile,
+  forgotPassword,
+  refreshToken,
 };

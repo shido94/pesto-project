@@ -262,7 +262,7 @@ const updateUserMobile = async (userId, body) => {
 
   if (user.mobile === body.mobile) {
     logger.error('Mobile number exists ', userId);
-    throw new apiError(httpStatus.FORBIDDEN, responseMessage.MOBILE_EXIST);
+    throw new apiError(httpStatus.BAD_REQUEST, responseMessage.MOBILE_EXIST);
   }
 
   const otp = randomNumberGenerator(4);
