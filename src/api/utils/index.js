@@ -14,6 +14,7 @@ const {
   OrderStatus,
   UserRole,
   ExpiryUnit,
+  SocketEvents,
 } = require('./enum');
 const aggregationPaginate = require('./aggregation-paginate');
 const s3 = require('./s3');
@@ -48,4 +49,5 @@ module.exports = {
   verifyToken,
   sendEmail,
   sendOTP,
+  SocketEvents,
 };

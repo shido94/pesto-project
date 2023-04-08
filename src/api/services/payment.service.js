@@ -1,7 +1,7 @@
 const axios = require('axios');
 const httpService = require('./http.service');
 const { constant, logger } = require('../utils');
-const { CUSTOMER_TYPE, RAZOR_PAY_API, ACCOUNT_TYPE, PAYMENT_STATUS } = require('../utils/enum');
+const { CustomerType, RazorPayApi, AccountType, PaymentStatus } = require('../utils/enum');
 const resourceRepo = require('../dataRepositories/resourceRepo');
 const { Payment } = require('../models');
 const { ObjectId } = require('mongodb');
@@ -17,10 +17,10 @@ const addCustomer = async ({ name, email, mobile }) => {
       name,
       email,
       contact: mobile,
-      type: CUSTOMER_TYPE.CUSTOMER,
+      type: CustomerType.CUSTOMER,
     };
 
-    return await httpService.post(constant.RAZOR_PAY.URI + '/' + RAZOR_PAY_API.ADD_CUSTOMER, payload);
+    return await httpService.post(constant.RAZOR_PAY.URI + '/' + RazorPayApi.ADD_CUSTOMER, payload);
   } catch (error) {
     logger.error(error);
     throw new Error('Please enter valid email or mobile');
@@ -40,7 +40,7 @@ const updateCustomer = async (id, { name, email, mobile }) => {
       contact: mobile,
     };
 
-    return await httpService.patch(constant.RAZOR_PAY.URI + '/' + RAZOR_PAY_API.ADD_CUSTOMER + '/' + id, payload);
+    return await httpService.patch(constant.RAZOR_PAY.URI + '/' + RazorPayApi.ADD_CUSTOMER + '/' + id, payload);
   } catch (error) {
     logger.error(error);
     throw new Error('Please enter valid email or mobile');
@@ -59,7 +59,7 @@ const addUserFundAccount = async (params) => {
     if (params.UPI) {
       payload = {
         contact_id: params.customerId,
-        account_type: ACCOUNT_TYPE.VPA,
+        account_type: AccountType.VPA,
         vpa: {
           address: params.UPI,
         },
@@ -67,7 +67,7 @@ const addUserFundAccount = async (params) => {
     } else {
       payload = {
         contact_id: params.customerId,
-        account_type: ACCOUNT_TYPE.BANK,
+        account_type: AccountType.BANK,
         bank_account: {
           name: params.accountHolderName,
           ifsc: params.ifscCode,
@@ -76,7 +76,7 @@ const addUserFundAccount = async (params) => {
       };
     }
 
-    return await httpService.post(constant.RAZOR_PAY.URI + '/' + RAZOR_PAY_API.FUND_ACCOUNTS, payload);
+    return await httpService.post(constant.RAZOR_PAY.URI + '/' + RazorPayApi.FUND_ACCOUNTS, payload);
   } catch (error) {
     logger.error(error);
     throw new Error('Please enter valid banking details');
@@ -97,7 +97,7 @@ const createPayment = async (paidBy, product) => {
       productId: product._id,
       payoutId: payout.id,
       amount: payout.amount / 100, // Convert paisa in rupees
-      status: PAYMENT_STATUS.PROCESSED,
+      status: PaymentStatus.PROCESSED,
     };
 
     /** update otp data */
@@ -132,7 +132,7 @@ const payoutToUser = async (user, product) => {
       },
     };
 
-    return await httpService.post(constant.RAZOR_PAY.URI + '/' + RAZOR_PAY_API.PAYOUT, payload);
+    return await httpService.post(constant.RAZOR_PAY.URI + '/' + RazorPayApi.PAYOUT, payload);
   } catch (error) {
     logger.error(error);
     throw error;
@@ -146,7 +146,7 @@ const getTotalUserEarning = async (userId) => {
     {
       $match: {
         paidTo: ObjectId(userId),
-        status: PAYMENT_STATUS.PROCESSED,
+        status: PaymentStatus.PROCESSED,
       },
     },
     {

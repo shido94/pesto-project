@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 const { toJSON, paginate } = require('./plugins');
 const aggregatePaginate = require('mongoose-aggregate-paginate-v2');
-const { DEVICE_TYPE, NOTIFICATION_TYPE } = require('../utils/enum');
+const { DeviceType, NotificationType } = require('../utils/enum');
 
 const notificationSchema = Schema(
   {
@@ -18,11 +18,11 @@ const notificationSchema = Schema(
     ],
     type: {
       type: Number,
-      enum: [NOTIFICATION_TYPE.BID, NOTIFICATION_TYPE.ORDER],
+      enum: [NotificationType.BID, NotificationType.ORDER],
     },
     recipientType: {
       type: Number,
-      enum: [DEVICE_TYPE.WEB, DEVICE_TYPE.ANDROID, DEVICE_TYPE.IOS],
+      enum: [DeviceType.WEB, DeviceType.ANDROID, DeviceType.IOS],
     },
     title: {
       type: String,

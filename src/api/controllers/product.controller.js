@@ -1,5 +1,5 @@
 const httpStatus = require('http-status');
-const { pick, catchAsync, responseMessage } = require('../utils');
+const { pick, catchAsync, responseMessage, SocketEvents } = require('../utils');
 const { productService } = require('../services');
 const { responseHandler } = require('../handlers');
 
@@ -14,6 +14,9 @@ const addSellProductRequest = catchAsync(async (req, res) => {
 
   await productService.addSellRequest(req.body, req.user);
 
+  /** Emit Notification */
+  const io = req.app.get('socket');
+  io.emit(SocketEvents.SELL_PRODUCT, req.user);
   return responseHandler.sendSuccess(res, httpStatus.OK, responseMessage.SUCCESS);
 });
 
@@ -56,6 +59,9 @@ const updateBid = catchAsync(async (req, res) => {
   /** Get Category Listing */
   await productService.updateBid(req.user, req.body);
 
+  /** Update bid */
+  const io = req.app.get('socket');
+  io.emit(SocketEvents.UPDATE_BID, req.user);
   return responseHandler.sendSuccess(res, httpStatus.OK, responseMessage.SUCCESS);
 });
 

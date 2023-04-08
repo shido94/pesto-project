@@ -7,7 +7,7 @@
 const http = require('http');
 const app = require('../src/api/server/index');
 require('../db/index');
-
+const { Server } = require('socket.io');
 const logger = require('../src/api/utils/logger');
 
 /**
@@ -39,7 +39,13 @@ function normalizePort(val) {
  */
 
 const port = normalizePort(process.env.PORT);
+const io = new Server(server);
 app.set('port', port);
+
+io.on('connection', (socket) => {
+  // send a message to the client
+  app.set('socket', socket);
+});
 /**
  * Event listener for HTTP server "error" event.
  */

@@ -55,6 +55,7 @@
     "path": "^0.12.7",
     "razorpay": "^2.8.6",
     "request": "^2.88.2",
+    "socket.io": "^4.6.1",
     "swagger-jsdoc": "^6.1.0",
     "swagger-model-validator": "^3.0.21",
     "swagger-ui-express": "^4.3.0",

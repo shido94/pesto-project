@@ -1,5 +1,5 @@
 const httpStatus = require('http-status');
-const { catchAsync, pick, responseMessage, logger } = require('../utils');
+const { catchAsync, pick, responseMessage, logger, SocketEvents } = require('../utils');
 const { adminService, userService, productService } = require('../services');
 const { responseHandler } = require('../handlers');
 
@@ -28,6 +28,9 @@ const createProductBid = catchAsync(async (req, res) => {
 
   logger.info('New bid created');
 
+  /** Add first bid */
+  const io = req.app.get('socket');
+  io.emit(SocketEvents.ADD_BID, req.user);
   return responseHandler.sendSuccess(res, httpStatus.OK, responseMessage.SUCCESS);
 });
 
@@ -46,6 +49,10 @@ const updatePickUpDate = catchAsync(async (req, res) => {
 
   await productService.updatePickUpDate(req.user.sub, body);
 
+  /** Send pickup notification */
+  const io = req.app.get('socket');
+  io.emit(SocketEvents.ORDER_PICKUP_DATE, req.user);
+
   return responseHandler.sendSuccess(res, httpStatus.OK, responseMessage.SUCCESS, {});
 });
 
@@ -55,6 +62,10 @@ const updatePickUp = catchAsync(async (req, res) => {
 
   await productService.orderPickedUp(req.user.sub, body);
 
+  /** Send picked up status */
+  const io = req.app.get('socket');
+  io.emit(SocketEvents.ORDER_PICKED, req.user);
+
   return responseHandler.sendSuccess(res, httpStatus.OK, responseMessage.SUCCESS, {});
 });
 
@@ -63,6 +74,10 @@ const makePayoutToUser = catchAsync(async (req, res) => {
   const body = pick(req.body, ['productId', 'userId']);
 
   await productService.makePayoutToUser(req.user.sub, body);
+
+  /** Order paid */
+  const io = req.app.get('socket');
+  io.emit(SocketEvents.ORDER_PAID, req.user);
 
   return responseHandler.sendSuccess(res, httpStatus.OK, responseMessage.SUCCESS, {});
 });

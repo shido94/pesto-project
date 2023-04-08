@@ -4,7 +4,7 @@ const { apiError, constant, eventEmitter } = require('../utils');
 const resourceRepo = require('../dataRepositories/resourceRepo');
 const aggregationPaginate = require('../utils/aggregation-paginate');
 const { ObjectId } = require('mongodb');
-const { DEVICE_TYPE, NOTIFICATION_TYPE, ProductBidStatus, OrderStatus } = require('../utils/enum');
+const { DeviceType, NotificationType, ProductBidStatus, OrderStatus } = require('../utils/enum');
 const userService = require('./user.service');
 
 /**
@@ -283,10 +283,10 @@ eventEmitter.on('sendAddProductNotification', async (senderId, data) => {
   const notificationData = {
     senderId: senderId,
     receiverIds: [receiver._id],
-    type: NOTIFICATION_TYPE.BID,
+    type: NotificationType.BID,
     title: constant.BID,
     description: `${sender.name} has created a new request`,
-    recipientType: DEVICE_TYPE.WEB,
+    recipientType: DeviceType.WEB,
     productId: data._id,
   };
 
@@ -300,10 +300,10 @@ eventEmitter.on('sendBidCreateNotification', async (senderId, product) => {
   const notificationData = {
     senderId: senderId,
     receiverIds: [product.createdBy],
-    type: NOTIFICATION_TYPE.BID,
+    type: NotificationType.BID,
     title: constant.BID,
     description: `${sender.name} has accepted your request and offered you the price.`,
-    recipientType: DEVICE_TYPE.WEB,
+    recipientType: DeviceType.WEB,
     productId: product._id,
   };
 
@@ -328,10 +328,10 @@ eventEmitter.on('sendBidUpdatesNotification', async (senderId, bid, status) => {
   const notificationData = {
     senderId: senderId,
     receiverIds: [bid.bidCreatedBy],
-    type: NOTIFICATION_TYPE.BID,
+    type: NotificationType.BID,
     title: constant.BID,
     description: description,
-    recipientType: DEVICE_TYPE.WEB,
+    recipientType: DeviceType.WEB,
     productId: bid.productId,
   };
 
@@ -358,10 +358,10 @@ eventEmitter.on('orderUpdatesNotification', async (senderId, product, status) =>
   const notificationData = {
     senderId: senderId,
     receiverIds: [bid.bidCreatedBy],
-    type: NOTIFICATION_TYPE.BID,
+    type: NotificationType.BID,
     title: title,
     description: description,
-    recipientType: DEVICE_TYPE.WEB,
+    recipientType: DeviceType.WEB,
     productId: product._id,
   };
 

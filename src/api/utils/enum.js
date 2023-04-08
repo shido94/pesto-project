@@ -42,30 +42,30 @@ const OrderStatus = {
   PAID: 4,
 };
 
-const CUSTOMER_TYPE = {
+const CustomerType = {
   VENDOR: 'vendor',
   CUSTOMER: 'customer',
   EMPLOYEE: 'employee',
   SELF: 'self',
 };
 
-const RAZOR_PAY_API = {
+const RazorPayApi = {
   ADD_CUSTOMER: 'contacts',
   FUND_ACCOUNTS: 'fund_accounts',
   PAYOUT: 'payouts',
 };
 
-const ACCOUNT_TYPE = {
+const AccountType = {
   VPA: 'vpa',
   BANK: 'bank_account',
 };
 
-const IDENTITY_PROOF = {
+const IdentityProof = {
   PAN: 1,
   AADHAAR: 2,
 };
 
-const PAYMENT_STATUS = {
+const PaymentStatus = {
   QUEUED: 'queued',
   PENDING: 'pending',
   REJECTED: 'rejected',
@@ -75,15 +75,24 @@ const PAYMENT_STATUS = {
   REVERSED: 'reversed',
 };
 
-const DEVICE_TYPE = {
+const DeviceType = {
   WEB: 1,
   ANDROID: 2,
   IOS: 3,
 };
 
-const NOTIFICATION_TYPE = {
+const NotificationType = {
   BID: 1,
   ORDER: 2,
+};
+
+const SocketEvents = {
+  SELL_PRODUCT: 'sell-product',
+  ADD_BID: 'add-bid',
+  UPDATE_BID: 'update-bid',
+  ORDER_PICKUP_DATE: 'order-pickup-date',
+  ORDER_PICKED: 'order-picked',
+  ORDER_PAID: 'order-paid',
 };
 
 module.exports = {
@@ -94,11 +103,12 @@ module.exports = {
   OrderStatus,
   UserRole,
   ExpiryUnit,
-  CUSTOMER_TYPE,
-  RAZOR_PAY_API,
-  ACCOUNT_TYPE,
-  IDENTITY_PROOF,
-  PAYMENT_STATUS,
-  DEVICE_TYPE,
-  NOTIFICATION_TYPE,
+  CustomerType,
+  RazorPayApi,
+  AccountType,
+  IdentityProof,
+  PaymentStatus,
+  DeviceType,
+  NotificationType,
+  SocketEvents,
 };
