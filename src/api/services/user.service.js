@@ -211,7 +211,7 @@ const updateUserprofile = async (userId, body) => {
   /** Check if user exists */
   if (dbUser && dbUser._id.toString() !== userId.toString()) {
     logger.error('User already exist with email or mobile');
-    throw new apiError(httpStatus.CONFLICT, responseMessage.USER_ALREADY_EXIST);
+    throw new apiError(httpStatus.BAD_GATEWAY, responseMessage.USER_ALREADY_EXIST);
   }
 
   const query = {

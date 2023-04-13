@@ -1,9 +1,9 @@
 const request = require('supertest');
-const app = require('../../api/server/index');
+const app = require('../../src/api/server/index');
 const setupTestDB = require('../utils/testDb');
 const { faker } = require('@faker-js/faker/locale/de');
 const httpStatus = require('http-status');
-const { getUserByEmailOrMobile } = require('../../api/services/user.service');
+const { getUserByEmailOrMobile } = require('../../src/api/services/user.service');
 
 const apiPath = '/api/v1';
 
@@ -62,7 +62,7 @@ describe('Auth Routes', () => {
 
     test('Check if mobile exists', async () => {
       newUser.mobile = '5555555555';
-      await request(app).post(AuthUrl.SIGNUP).send(newUser).expect(httpStatus.CONFLICT);
+      await request(app).post(AuthUrl.SIGNUP).send(newUser).expect(httpStatus.BAD_GATEWAY);
     });
   });
 

@@ -7,6 +7,7 @@ const {
   ProductBidStatus,
   OrderStatus,
   eventEmitter,
+  Events,
 } = require('../utils');
 const resourceRepo = require('../dataRepositories/resourceRepo');
 const httpStatus = require('http-status');
@@ -172,7 +173,7 @@ const addSellRequest = async (body, user) => {
   /** Add new  product request */
   const product = await resourceRepo.create(constant.COLLECTIONS.PRODUCT, { data });
 
-  await eventEmitter.emit('sendAddProductNotification', user.sub, product);
+  await eventEmitter.emit(Events.ADD_PRODUCT, user.sub, product);
 };
 
 /**
@@ -263,19 +264,19 @@ const getProductsAggregateQuery = (filter) => {
     $match: filter,
   });
 
-  // /**
-  //  * Get Category detail
-  //  */
-  // query.push(categoryLookupQuery());
-  // query.push({ $unwind: '$category' });
+  /**
+   * Get Category detail
+   */
+  query.push(categoryLookupQuery());
+  query.push({ $unwind: '$category' });
 
-  // /**
-  //  * Get Created by details
-  //  */
-  // query.push(creatorLookupQuery());
-  // query.push({ $unwind: '$createdByDetails' });
+  /**
+   * Get Created by details
+   */
+  query.push(creatorLookupQuery());
+  query.push({ $unwind: '$createdByDetails' });
 
-  // query.push(changeHistoryLookupQuery());
+  query.push(changeHistoryLookupQuery());
 
   query.push({ $sort: { updatedAt: -1 } });
 
@@ -443,7 +444,7 @@ const createNewBid = async (user, body) => {
 
   const product = await getProductById(body.productId);
 
-  await eventEmitter.emit('sendBidCreateNotification', user.sub, product);
+  await eventEmitter.emit(Events.ADD_NEW_BID, user.sub, product);
 };
 
 /**
@@ -704,7 +705,7 @@ const updateBid = async (user, body) => {
     await session.commitTransaction();
     session.endSession();
 
-    await eventEmitter.emit('sendBidUpdatesNotification', user.sub, bid, body.status);
+    await eventEmitter.emit(Events.BID_UPDATE, user.sub, bid, body.status);
   } catch (error) {
     // If an error occurred, abort the whole transaction and
     // undo any changes that might have happened
@@ -755,7 +756,7 @@ const updatePickUpDate = async (userId, body) => {
 
   await resourceRepo.updateOne(constant.COLLECTIONS.PRODUCT, { query, data });
 
-  await eventEmitter.emit('orderUpdatesNotification', userId, product, OrderStatus.PICKED_UP_DATE_ESTIMATED);
+  await eventEmitter.emit(Events.ORDER_UPDATE, userId, product, OrderStatus.PICKED_UP_DATE_ESTIMATED);
 };
 
 /**
@@ -794,7 +795,7 @@ const orderPickedUp = async (userId, body) => {
 
   await resourceRepo.updateOne(constant.COLLECTIONS.PRODUCT, { query, data });
 
-  await eventEmitter.emit('orderUpdatesNotification', userId, product, OrderStatus.PICKED_UP);
+  await eventEmitter.emit(Events.ORDER_UPDATE, userId, product, OrderStatus.PICKED_UP);
 };
 
 /**
@@ -848,7 +849,7 @@ const makePayoutToUser = async (paidBy, body) => {
 
   await resourceRepo.updateOne(constant.COLLECTIONS.PRODUCT, { query, data });
 
-  await eventEmitter.emit('orderUpdatesNotification', paidBy, product, OrderStatus.PAID);
+  await eventEmitter.emit(Events.ORDER_UPDATE, paidBy, product, OrderStatus.PAID);
 };
 
 /**

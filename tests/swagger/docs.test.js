@@ -1,7 +1,7 @@
 const request = require('supertest');
-const app = require('../../api/server/index');
+const app = require('../../src/api/server/index');
 const httpStatus = require('http-status');
-const { environment } = require('../../api/config');
+const { environment } = require('../../src/api/config');
 
 describe('Swagger Routes', () => {
   describe('POST /v1/docs', () => {

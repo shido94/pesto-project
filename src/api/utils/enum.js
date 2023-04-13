@@ -95,6 +95,13 @@ const SocketEvents = {
   ORDER_PAID: 'order-paid',
 };
 
+const Events = {
+  ADD_NEW_BID: 'sendBidCreateNotification',
+  ADD_PRODUCT: 'sendAddProductNotification',
+  BID_UPDATE: 'sendBidUpdatesNotification',
+  ORDER_UPDATE: 'orderUpdatesNotification',
+};
+
 module.exports = {
   CategoryEnum,
   NotificationRecipientTypeEnum,
@@ -111,4 +118,5 @@ module.exports = {
   DeviceType,
   NotificationType,
   SocketEvents,
+  Events,
 };

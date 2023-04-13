@@ -30,7 +30,7 @@ const login = async (email, password) => {
     user: {
       _id: user._id,
       name: user.name,
-      email: user.name,
+      email: user.email,
       role: user.role,
       mobile: user.mobile,
     },

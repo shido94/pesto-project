@@ -27,7 +27,7 @@ const register = async (body) => {
     /** Check if user exists */
     if (await userService.getUserByEmailOrMobile(body.email, body.mobile)) {
       logger.error('User already exist with email or mobile');
-      throw new apiError(httpStatus.CONFLICT, responseMessage.USER_ALREADY_EXIST);
+      throw new apiError(httpStatus.BAD_GATEWAY, responseMessage.USER_ALREADY_EXIST);
     }
 
     body.role = UserRole.USER;
@@ -112,7 +112,11 @@ const login = async (body) => {
   }
 
   if (user.isReported) {
-    throw new apiError(httpStatus.CONFLICT, responseMessage.BLOCKED);
+    throw new apiError(httpStatus.BAD_GATEWAY, responseMessage.BLOCKED);
+  }
+
+  if (!user.password) {
+    throw new apiError(httpStatus.BAD_GATEWAY, responseMessage.MISSING_PASSWORD);
   }
 
   if (!(await user.isPasswordMatch(password))) {
@@ -127,7 +131,7 @@ const login = async (body) => {
     user: {
       _id: user._id,
       name: user.name,
-      email: user.name,
+      email: user.email,
       role: user.role,
       mobile: user.mobile,
     },
@@ -210,7 +214,6 @@ const refreshAuthToken = async (token) => {
 
   try {
     const tokenData = await tokenService.verifyRefreshToken(token);
-    console.log(tokenData);
 
     const user = userService.getUserById(tokenData.sub);
     if (!user) {

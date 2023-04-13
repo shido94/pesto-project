@@ -4,7 +4,7 @@ const { apiError, constant, eventEmitter } = require('../utils');
 const resourceRepo = require('../dataRepositories/resourceRepo');
 const aggregationPaginate = require('../utils/aggregation-paginate');
 const { ObjectId } = require('mongodb');
-const { DeviceType, NotificationType, ProductBidStatus, OrderStatus } = require('../utils/enum');
+const { DeviceType, NotificationType, ProductBidStatus, OrderStatus, Events } = require('../utils/enum');
 const userService = require('./user.service');
 
 /**
@@ -294,7 +294,7 @@ eventEmitter.on('sendAddProductNotification', async (senderId, data) => {
   logger.info('Add product Notification Saved');
 });
 
-eventEmitter.on('sendBidCreateNotification', async (senderId, product) => {
+eventEmitter.on(Events.ADD_NEW_BID, async (senderId, product) => {
   const sender = await userService.getUserById(ObjectId(senderId));
 
   const notificationData = {
@@ -357,7 +357,7 @@ eventEmitter.on('orderUpdatesNotification', async (senderId, product, status) =>
 
   const notificationData = {
     senderId: senderId,
-    receiverIds: [bid.bidCreatedBy],
+    receiverIds: [product.createdBy],
     type: NotificationType.BID,
     title: title,
     description: description,

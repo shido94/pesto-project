@@ -23,6 +23,7 @@ const getUsers = catchAsync(async (req, res) => {
 
 const createProductBid = catchAsync(async (req, res) => {
   const body = pick(req.body, ['productId', 'offeredAmount']);
+  logger.info(body);
 
   await productService.createNewBid(req.user, body);
 

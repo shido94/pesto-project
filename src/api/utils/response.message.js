@@ -28,6 +28,8 @@ module.exports = {
   INCORRECT_CURRENT_PASSWORD: 'Current password is wrong.',
   UNAUTHORIZE: 401,
   UNAUTHORIZE_MSG: 'Unauthorize User',
+  MISSING_PASSWORD:
+    'Password is missing for this account, Please reset the password by clicking on the forgot password',
   BAD_REQUEST: 400,
   BAD_REQUEST_MSG: 'Entered data is Invalid',
   INCORRECT_EMAIL: 'Incorrect email',
