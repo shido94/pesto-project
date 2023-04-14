@@ -215,7 +215,8 @@ const refreshAuthToken = async (token) => {
   try {
     const tokenData = await tokenService.verifyRefreshToken(token);
 
-    const user = userService.getUserById(tokenData.sub);
+    const user = await userService.getUserById(tokenData.sub);
+    console.log(user);
     if (!user) {
       throw new apiError(httpStatus.UNAUTHORIZED, responseMessage.OTP_EXPIRED);
     }

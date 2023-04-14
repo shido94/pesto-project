@@ -42,10 +42,13 @@ const port = normalizePort(process.env.PORT);
 const io = new Server(server);
 app.set('port', port);
 
-io.on('connection', (socket) => {
-  // send a message to the client
-  app.set('socket', socket);
-});
+// io.on('connection', (socket) => {
+//   // send a message to the client
+//   console.log(socket);
+//   app.set('socket', socket);
+// });
+app.set('socket', io);
+
 /**
  * Event listener for HTTP server "error" event.
  */

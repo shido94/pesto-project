@@ -25,12 +25,13 @@ const createProductBid = catchAsync(async (req, res) => {
   const body = pick(req.body, ['productId', 'offeredAmount']);
   logger.info(body);
 
-  await productService.createNewBid(req.user, body);
+  // await productService.createNewBid(req.user, body);
 
   logger.info('New bid created');
 
   /** Add first bid */
   const io = req.app.get('socket');
+  console.log(io);
   io.emit(SocketEvents.ADD_BID, req.user);
   return responseHandler.sendSuccess(res, httpStatus.OK, responseMessage.SUCCESS);
 });
