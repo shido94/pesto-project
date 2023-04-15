@@ -260,7 +260,9 @@ const updateUserMobile = async (userId, body) => {
     throw new apiError(httpStatus.NOT_FOUND, responseMessage.NO_USER_FOUND);
   }
 
-  if (user.mobile === body.mobile) {
+  const otherUser = await getUserByEmailOrMobile('', body.mobile);
+
+  if (user.mobile === body.mobile || (otherUser && otherUser._id.toString() !== user._id.toString())) {
     logger.error('Mobile number exists ', userId);
     throw new apiError(httpStatus.BAD_REQUEST, responseMessage.MOBILE_EXIST);
   }
@@ -295,6 +297,13 @@ const verifyUpdateMobileOtp = async (userId, otp) => {
     if (!user.tempMobile || !user.updateMobileOtp || !user.updateMobileOtpExpiry) {
       logger.error('Already verified');
       throw new apiError(httpStatus.BAD_REQUEST, responseMessage.INVALID_REQUEST);
+    }
+
+    const otherUser = await getUserByEmailOrMobile('', user.tempMobile);
+
+    if (otherUser && otherUser._id.toString() !== user._id.toString()) {
+      logger.error('Mobile number exists ', userId);
+      throw new apiError(httpStatus.BAD_REQUEST, responseMessage.MOBILE_EXIST);
     }
 
     // TODO - remove static otp
